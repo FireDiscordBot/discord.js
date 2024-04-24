@@ -30,6 +30,8 @@
  * * **`StageInstance`**
  * * **`SelectMenuInteraction`**
  * * **`ContextMenuInteraction`**
+ * * **`MessageContextMenuInteraction`**
+ * * **`UserContextMenuInteraction`**
  * * **`AutocompleteInteraction`**
  * * **`MessageComponentInteraction`**
  * @typedef {string} ExtendableStructure

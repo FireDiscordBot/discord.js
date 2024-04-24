@@ -4761,6 +4761,8 @@ interface Extendable {
   ButtonInteraction: typeof ButtonInteraction;
   SelectMenuInteraction: typeof SelectMenuInteraction;
   ContextMenuInteraction: typeof ContextMenuInteraction;
+  MessageContextMenuInteraction: typeof MessageContextMenuInteraction;
+  UserContextMenuInteraction: typeof UserContextMenuInteraction;
   AutocompleteInteraction: typeof AutocompleteInteraction;
   MessageComponentInteraction: typeof MessageComponentInteraction;
   ModalSubmitInteraction: typeof ModalSubmitInteraction;
