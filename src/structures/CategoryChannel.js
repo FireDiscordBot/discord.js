@@ -8,6 +8,19 @@ const GuildChannel = require('./GuildChannel');
  */
 class CategoryChannel extends GuildChannel {
   /**
+   * The id of the parent of this channel.
+   * @name CategoryChannel#parentId
+   * @type {null}
+   */
+
+  /**
+   * The parent of this channel.
+   * @name CategoryChannel#parent
+   * @type {null}
+   * @readonly
+   */
+
+  /**
    * Channels that are a part of this category
    * @type {Collection<Snowflake, GuildChannel>}
    * @readonly
@@ -18,7 +31,7 @@ class CategoryChannel extends GuildChannel {
 
   /**
    * Sets the category parent of this channel.
-   * <warn>It is not currently possible to set the parent of a CategoryChannel.</warn>
+   * <warn>It is not possible to set the parent of a CategoryChannel.</warn>
    * @method setParent
    * @memberof CategoryChannel
    * @instance
@@ -49,6 +62,8 @@ class CategoryChannel extends GuildChannel {
    * @property {?DefaultReactionEmoji} [defaultReactionEmoji] The emoji to set as the default reaction emoji
    * @property {number} [defaultThreadRateLimitPerUser] The rate limit per user (slowmode) to set on forum posts
    * @property {?SortOrderType} [defaultSortOrder] The default sort order mode to set on the new channel
+   * @property {number} [defaultThreadRateLimitPerUser] The initial rate limit per user (slowmode)
+   * to set on newly created threads in a channel.
    * @property {string} [reason] Reason for creating the new channel
    */
 

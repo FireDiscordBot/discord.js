@@ -145,8 +145,21 @@ class GuildChannel extends Channel {
    * @readonly
    */
   get position() {
-    const sorted = this.guild._sortedChannels(this);
-    return [...sorted.values()].indexOf(sorted.get(this.id));
+    const selfIsCategory = this.type === 'GUILD_CATEGORY';
+    const types = Util.getSortableGroupTypes(this.type);
+
+    let count = 0;
+    for (const channel of this.guild.channels.cache.values()) {
+      if (!types.includes(channel.type)) continue;
+      if (!selfIsCategory && channel.parentId !== this.parentId) continue;
+      if (this.rawPosition === channel.rawPosition) {
+        if (BigInt(channel.id) < BigInt(this.id)) count++;
+      } else if (this.rawPosition > channel.rawPosition) {
+        count++;
+      }
+    }
+
+    return count;
   }
 
   /**

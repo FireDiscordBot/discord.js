@@ -4,6 +4,7 @@ const process = require('node:process');
 const Base = require('./Base');
 const { Error } = require('../errors');
 const Permissions = require('../util/Permissions');
+const RoleFlags = require('../util/RoleFlags');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 let deprecationEmittedForComparePositions = false;
@@ -142,6 +143,16 @@ class Role extends Base {
         this.tags.guildConnections = true;
       }
     }
+
+    if ('flags' in data) {
+      /**
+       * The flags of this role
+       * @type {Readonly<RoleFlags>}
+       */
+      this.flags = new RoleFlags(data.flags).freeze();
+    } else {
+      this.flags ??= new RoleFlags().freeze();
+    }
   }
 
   /**
@@ -228,8 +239,13 @@ class Role extends Base {
    * @readonly
    */
   get position() {
-    const sorted = this.guild._sortedRoles();
-    return [...sorted.values()].indexOf(sorted.get(this.id));
+    let count = 0;
+    for (const role of this.guild.roles.cache.values()) {
+      if (this.rawPosition > role.rawPosition) count++;
+      else if (this.rawPosition === role.rawPosition && BigInt(this.id) < BigInt(role.id)) count++;
+    }
+
+    return count;
   }
 
   /**
