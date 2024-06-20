@@ -19,14 +19,6 @@ const deletedGuildMembers = new WeakSet();
 let deprecationEmittedForDeleted = false;
 
 /**
- * @type {WeakSet<GuildMember>}
- * @private
- * @internal
- */
-const deletedGuildMembers = new WeakSet();
-let deprecationEmittedForDeleted = false;
-
-/**
  * Represents a member of a guild on Discord.
  * @implements {TextBasedChannel}
  * @extends {Base}
