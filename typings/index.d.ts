@@ -79,7 +79,6 @@ import {
   MessageButtonStyles,
   MessageComponentTypes,
   MessageTypes,
-  ModalComponentTypes,
   MFALevels,
   NSFWLevels,
   OverwriteTypes,
@@ -2070,56 +2069,6 @@ export class PartialGroupDMChannel extends Channel {
   public iconURL(options?: StaticImageURLOptions): string | null;
 }
 
-export interface GuildForumTagEmoji {
-  id: Snowflake | null;
-  name: string | null;
-}
-
-export interface GuildForumTag {
-  id: Snowflake;
-  name: string;
-  moderated: boolean;
-  emoji: GuildForumTagEmoji | null;
-}
-
-export type GuildForumTagData = Partial<GuildForumTag> & { name: string };
-
-export interface DefaultReactionEmoji {
-  id: Snowflake | null;
-  name: string | null;
-}
-
-export class ForumChannel extends TextBasedChannelMixin(GuildChannel, [
-  'send',
-  'lastMessage',
-  'lastPinAt',
-  'bulkDelete',
-  'sendTyping',
-  'createMessageCollector',
-  'awaitMessages',
-  'createMessageComponentCollector',
-  'awaitMessageComponent',
-]) {
-  public type: 'GUILD_FORUM';
-  public threads: GuildForumThreadManager;
-  public defaultReactionEmoji: DefaultReactionEmoji | null;
-  public defaultThreadRateLimitPerUser: number | null;
-  public rateLimitPerUser: number | null;
-  public nsfw: boolean;
-  public topic: string | null;
-
-  public setAvailableTags(tags: GuildForumTagData[], reason?: string): Promise<this>;
-  public setDefaultReactionEmoji(emojiId: DefaultReactionEmoji | null, reason?: string): Promise<this>;
-  public setDefaultThreadRateLimitPerUser(rateLimit: number, reason?: string): Promise<this>;
-  public createInvite(options?: CreateInviteOptions): Promise<Invite>;
-  public fetchInvites(cache?: boolean): Promise<Collection<string, Invite>>;
-  public setDefaultAutoArchiveDuration(
-    defaultAutoArchiveDuration: ThreadAutoArchiveDuration,
-    reason?: string,
-  ): Promise<this>;
-  public setTopic(topic: string | null, reason?: string): Promise<this>;
-}
-
 export class PermissionOverwrites extends Base {
   public constructor(client: Client, data: RawPermissionOverwriteData, channel: NonThreadGuildBasedChannel);
   public allow: Readonly<Permissions>;
@@ -2913,8 +2862,7 @@ export class Formatters extends null {
   public static userMention: typeof userMention;
 }
 
-export class VoiceChannel extends TextBasedChannelMixin(BaseGuildVoiceChannel, ['lastPinTimestamp', 'lastPinAt']) {
-  public videoQualityMode: VideoQualityMode | null;
+export class VoiceChannel extends BaseGuildVoiceChannel {
   /** @deprecated Use manageable instead */
   public readonly editable: boolean;
   public readonly speakable: boolean;
@@ -4531,7 +4479,6 @@ export interface Caches {
   StageInstanceManager: [manager: typeof StageInstanceManager, holds: typeof StageInstance];
   ThreadManager: [manager: typeof ThreadManager, holds: typeof ThreadChannel];
   ThreadMemberManager: [manager: typeof ThreadMemberManager, holds: typeof ThreadMember];
-  GuildForumThreadManager: [manager: typeof GuildForumThreadManager, holds: typeof ThreadChannel];
   UserManager: [manager: typeof UserManager, holds: typeof User];
   VoiceStateManager: [manager: typeof VoiceStateManager, holds: typeof VoiceState];
 }
