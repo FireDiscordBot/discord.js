@@ -5,6 +5,7 @@ const { Error } = require('../errors');
 const PermissionOverwriteManager = require('../managers/PermissionOverwriteManager');
 const { VoiceBasedChannelTypes } = require('../util/Constants');
 const Permissions = require('../util/Permissions');
+const { getSortableGroupTypes } = require('../util/Util');
 
 /**
  * Represents a guild channel from any of the following:
@@ -146,7 +147,7 @@ class GuildChannel extends Channel {
    */
   get position() {
     const selfIsCategory = this.type === 'GUILD_CATEGORY';
-    const types = Util.getSortableGroupTypes(this.type);
+    const types = getSortableGroupTypes(this.type);
 
     let count = 0;
     for (const channel of this.guild.channels.cache.values()) {
