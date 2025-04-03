@@ -4,6 +4,7 @@ const { Buffer } = require('node:buffer');
 const BaseMessageComponent = require('./BaseMessageComponent');
 const MessageEmbed = require('./MessageEmbed');
 const { RangeError } = require('../errors');
+const { MessageReferenceType } = require('../util/Constants');
 const DataResolver = require('../util/DataResolver');
 const MessageFlags = require('../util/MessageFlags');
 const Util = require('../util/Util');
@@ -183,6 +184,23 @@ class MessagePayload {
           message_id,
           fail_if_not_exists: this.options.reply.failIfNotExists ?? this.target.client.options.failIfNotExists,
         };
+      }
+    }
+
+    if (typeof this.options.forward === 'object') {
+      const reference = this.options.forward.message;
+      const channel_id = reference.channelId ?? this.target.client.channels.resolveId(this.options.forward.channel);
+      const guild_id = reference.guildId ?? this.target.client.guilds.resolveId(this.options.forward.guild);
+      const message_id = this.target.messages.resolveId(reference);
+      if (message_id) {
+        if (channel_id) {
+          message_reference = {
+            type: MessageReferenceType.FORWARD,
+            message_id,
+            channel_id,
+            guild_id: guild_id ?? undefined,
+          };
+        }
       }
     }
 

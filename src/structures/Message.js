@@ -14,8 +14,14 @@ const ReactionCollector = require('./ReactionCollector');
 const { Sticker } = require('./Sticker');
 const { Error } = require('../errors');
 const ReactionManager = require('../managers/ReactionManager');
-const { InteractionTypes, MessageTypes, SystemMessageTypes, MaxBulkDeletableMessageAge } = require('../util/Constants');
-const MessageFlags = require('../util/MessageFlags');
+const {
+  InteractionTypes,
+  MessageTypes,
+  SystemMessageTypes,
+  MaxBulkDeletableMessageAge,
+  MessageReferenceType,
+} = require('../util/Constants');
+const MessageFlags = require('../util/Me ssageFlags');
 const Permissions = require('../util/Permissions');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
@@ -313,10 +319,11 @@ class Message extends Base {
      * * REPLY
      * * THREAD_STARTER_MESSAGE
      * @see {@link https://discord.com/developers/docs/resources/channel#message-types}
-     * @typedef {Object} MessageReference
+     * @typedef {Object}
      * @property {Snowflake} channelId The channel's id the message was referenced
      * @property {?Snowflake} guildId The guild's id the message was referenced
      * @property {?Snowflake} messageId The message's id that was referenced
+     * @property {MessageReferenceType} type The type of message reference
      */
 
     if ('message_reference' in data) {
@@ -328,6 +335,7 @@ class Message extends Base {
         channelId: data.message_reference.channel_id,
         guildId: data.message_reference.guild_id,
         messageId: data.message_reference.message_id,
+        type: data.message_reference.type ?? 0,
       };
     } else {
       this.reference ??= null;
@@ -335,6 +343,29 @@ class Message extends Base {
 
     if (data.referenced_message) {
       this.channel?.messages._add({ guild_id: data.message_reference?.guild_id, ...data.referenced_message });
+    }
+
+    if (data.message_snapshots) {
+      /**
+       * The message associated with the message reference
+       * @type {Collection<Snowflake, Message>}
+       */
+      this.messageSnapshots = data.message_snapshots.reduce((coll, snapshot) => {
+        const channel = this.client.channels.resolve(this.reference.channelId);
+        const snapshotData = {
+          ...snapshot.message,
+          id: this.reference.messageId,
+          channel_id: this.reference.channelId,
+          guild_id: this.reference.guildId,
+        };
+
+        return coll.set(
+          this.reference.messageId,
+          channel ? channel.messages._add(snapshotData) : new this.constructor(this.client, snapshotData),
+        );
+      }, new Collection());
+    } else {
+      this.messageSnapshots ??= new Collection();
     }
 
     /**
@@ -597,7 +628,10 @@ class Message extends Base {
    */
   get editable() {
     const precheck = Boolean(
-      this.author.id === this.client.user.id && !deletedMessages.has(this) && (!this.guild || this.channel?.viewable),
+      this.author.id === this.client.user.id &&
+        !deletedMessages.has(this) &&
+        (!this.guild || this.channel?.viewable) &&
+        this.reference.type !== MessageReferenceType.FORWARD,
     );
 
     // Regardless of permissions thread messages cannot be edited if
@@ -702,6 +736,7 @@ class Message extends Base {
     return Boolean(
       channel?.type === 'GUILD_NEWS' &&
         !this.flags.has(MessageFlags.FLAGS.CROSSPOSTED) &&
+        this.reference.type !== MessageReferenceType.FORWARD &&
         this.type === 'DEFAULT' &&
         channel.viewable &&
         channel.permissionsFor(this.client.user)?.has(bitfield, false) &&
@@ -877,6 +912,24 @@ class Message extends Base {
    * <warn>This option is deprecated and will be removed in the next major version.</warn>
    * @typedef {number|string} ThreadAutoArchiveDuration
    */
+
+  /**
+   * Forwards this message
+   *
+   * @param {TextBasedChannelResolvable} channel The channel to forward this message to.
+   * @returns {Promise<Message>}
+   */
+  forward(channel) {
+    const resolvedChannel = this.client.channels.resolve(channel);
+    if (!resolvedChannel) return Promise.reject(new Error('CHANNEL_NOT_CACHED'));
+    return resolvedChannel.send({
+      forward: {
+        message: this.id,
+        channel: this.channelId,
+        guild: this.guildId,
+      },
+    });
+  }
 
   /**
    * Options for starting a thread on a message.

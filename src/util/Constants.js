@@ -1415,6 +1415,15 @@ exports.MessageComponentTypes = createEnum([null, 'ACTION_ROW', 'BUTTON', 'SELEC
 exports.MessageButtonStyles = createEnum([null, 'PRIMARY', 'SECONDARY', 'SUCCESS', 'DANGER', 'LINK']);
 
 /**
+ * The type of message reference
+ * * DEFAULT
+ * * FORWARD
+ * @typedef {number} MessageReferenceType
+ * @see {@link https://discord.com/developers/docs/resources/message#message-reference-structure}
+ */
+exports.MessageReferenceType = createEnum(['DEFAULT', 'FORWARD']);
+
+/**
  * The required MFA level for a guild
  * * NONE
  * * ELEVATED

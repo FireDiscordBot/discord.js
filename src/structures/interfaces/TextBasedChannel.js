@@ -72,9 +72,17 @@ class TextBasedChannel {
    * Options provided when sending or editing a message.
    * @typedef {BaseMessageOptions} MessageOptions
    * @property {ReplyOptions} [reply] The options for replying to a message
+   * @property {ForwardOptions} [forward] The options for forwarding a message
    * @property {StickerResolvable[]} [stickers=[]] Stickers to send in the message
    * @property {MessageFlags} [flags]
    * Which flags to set for the message. Only `SUPPRESS_EMBEDS` and `SUPPRESS_NOTIFICATIONS` can be set.
+   */
+
+  /**
+   * @typedef {Object} ForwardOptions
+   * @property {MessageResolvable} message The originating message
+   * @property {TextBasedChannelResolvable} [channel] The channel of the originating message
+   * @property {GuildResolvable} [guild] The guild of the originating message
    */
 
   /**

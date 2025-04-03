@@ -1659,6 +1659,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public webhookId: Snowflake | null;
   public flags: Readonly<MessageFlags>;
   public reference: MessageReference | null;
+  public messageSnapshots: Collection<Snowflake, MessageSnapshot>;
   public position: number | null;
   public awaitMessageComponent<T extends MessageComponentTypeResolvable = 'ACTION_ROW'>(
     options?: AwaitMessageCollectorOptionsParams<T, Cached>,
@@ -1678,6 +1679,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public pin(reason?: string): Promise<Message>;
   public react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
   public removeAttachments(): Promise<Message>;
+  public forward(channel: Exclude<TextBasedChannelResolvable, PartialGroupDMChannel>): Promise<Message>;
   public reply(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
   public resolveComponent(customId: string): MessageActionRowComponent | null;
   public startThread(options: StartThreadOptions): Promise<ThreadChannel>;
@@ -6016,6 +6018,26 @@ export interface MessageMentionOptions {
 
 export type MessageMentionTypes = 'roles' | 'users' | 'everyone';
 
+export interface MessageSnapshot
+  extends Partialize<
+    Message,
+    null,
+    Exclude<
+      keyof Message,
+      | 'attachments'
+      | 'client'
+      | 'components'
+      | 'content'
+      | 'createdTimestamp'
+      | 'editedTimestamp'
+      | 'embeds'
+      | 'flags'
+      | 'mentions'
+      | 'stickers'
+      | 'type'
+    >
+  > {}
+
 export interface MessageOptions {
   tts?: boolean;
   nonce?: string | number;
@@ -6025,6 +6047,7 @@ export interface MessageOptions {
   allowedMentions?: MessageMentionOptions;
   files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
   reply?: ReplyOptions;
+  forward?: ForwardOptions;
   stickers?: StickerResolvable[];
   attachments?: MessageAttachment[];
   flags?: BitFieldResolvable<'SUPPRESS_EMBEDS' | 'SUPPRESS_NOTIFICATIONS', number>;
@@ -6036,6 +6059,12 @@ export interface MessageReference {
   channelId: Snowflake;
   guildId: Snowflake | undefined;
   messageId: Snowflake | undefined;
+  type: MessageReferenceType;
+}
+
+export enum MessageReferenceType {
+  DEFAULT,
+  FORWARD,
 }
 
 export type MessageResolvable = Message | Snowflake;
@@ -6299,8 +6328,21 @@ export interface ReactionCollectorOptions extends CollectorOptions<[MessageReact
   maxUsers?: number;
 }
 
-export interface ReplyOptions {
-  messageReference: MessageResolvable;
+export interface BaseForwardOptions {
+  message: MessageResolvable;
+  channel?: Exclude<TextBasedChannelResolvable, PartialGroupDMChannel>;
+  guild?: GuildResolvable;
+}
+
+export type ForwardOptionsWithMandatoryChannel = BaseForwardOptions & Required<Pick<BaseForwardOptions, 'channel'>>;
+
+export interface ForwardOptionsWithOptionalChannel extends BaseForwardOptions {
+  message: Exclude<MessageResolvable, Snowflake>;
+}
+
+export type ForwardOptions = ForwardOptionsWithMandatoryChannel | ForwardOptionsWithOptionalChannel;
+
+export interface ReplyOptions extends Omit<MessageOptions, 'reply' | 'forward'> {
   failIfNotExists?: boolean;
 }
 
@@ -6625,7 +6667,7 @@ export interface WebhookFetchMessageOptions {
   threadId?: Snowflake;
 }
 
-export interface WebhookMessageOptions extends Omit<MessageOptions, 'reply' | 'stickers'> {
+export interface WebhookMessageOptions extends Omit<MessageOptions, 'reply' | 'stickers' | 'forward'> {
   username?: string;
   avatarURL?: string;
   threadId?: Snowflake;
