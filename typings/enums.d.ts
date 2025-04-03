@@ -178,6 +178,11 @@ export const enum MessageButtonStyles {
   LINK = 5,
 }
 
+export const enum MessageReferenceType {
+  DEFAULT = 0,
+  FORWARD = 1,
+}
+
 export const enum MessageComponentTypes {
   ACTION_ROW = 1,
   BUTTON = 2,

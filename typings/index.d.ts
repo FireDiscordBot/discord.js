@@ -88,6 +88,7 @@ import {
   MembershipStates,
   MessageButtonStyles,
   MessageComponentTypes,
+  MessageReferenceType,
   MessageTypes,
   MFALevels,
   NSFWLevels,
@@ -3219,6 +3220,7 @@ export const Constants: {
   MaxBulkDeletableMessageAge: 1_209_600_000;
   MembershipStates: EnumHolder<typeof MembershipStates>;
   MessageButtonStyles: EnumHolder<typeof MessageButtonStyles>;
+  MessageReferenceType: EnumHolder<typeof MessageReferenceType>;
   MessageComponentTypes: EnumHolder<typeof MessageComponentTypes>;
   MessageTypes: MessageType[];
   MFALevels: EnumHolder<typeof MFALevels>;
@@ -6118,11 +6120,6 @@ export interface MessageReference {
   guildId: Snowflake | undefined;
   messageId: Snowflake | undefined;
   type: MessageReferenceType;
-}
-
-export enum MessageReferenceType {
-  DEFAULT,
-  FORWARD,
 }
 
 export type MessageResolvable = Message | Snowflake;
