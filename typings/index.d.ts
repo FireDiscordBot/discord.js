@@ -1659,6 +1659,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public system: boolean;
   public readonly thread: ThreadChannel | null;
   public tts: boolean;
+  public poll: Poll | null;
   public type: MessageType;
   public readonly url: string;
   public webhookId: Snowflake | null;
