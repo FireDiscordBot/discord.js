@@ -56,6 +56,7 @@ UserFlags.FLAGS = {
   DISCORD_CERTIFIED_MODERATOR: 1 << 18,
   BOT_HTTP_INTERACTIONS: 1 << 19,
   ACTIVE_DEVELOPER: 1 << 22,
+  PROVISIONAL_ACCOUNT: 1 << 23,
 };
 
 module.exports = UserFlags;
