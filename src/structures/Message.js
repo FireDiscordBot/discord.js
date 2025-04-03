@@ -10,6 +10,7 @@ const MessageAttachment = require('./MessageAttachment');
 const Embed = require('./MessageEmbed');
 const Mentions = require('./MessageMentions');
 const MessagePayload = require('./MessagePayload');
+const { Poll } = require('./Poll');
 const ReactionCollector = require('./ReactionCollector');
 const { Sticker } = require('./Sticker');
 const { Error } = require('../errors');
@@ -391,6 +392,16 @@ class Message extends Base {
       };
     } else {
       this.interaction ??= null;
+    }
+
+    if (data.poll) {
+      /**
+       * The poll that was sent with the message
+       * @type {?Poll}
+       */
+      this.poll = new Poll(this.client, data.poll, this);
+    } else {
+      this.poll ??= null;
     }
   }
 

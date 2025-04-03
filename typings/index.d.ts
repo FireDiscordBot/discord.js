@@ -28,6 +28,8 @@ import {
   APIApplicationCommandPermission,
   APIAuditLogChange,
   APIButtonComponent,
+  APIChatInputApplicationCommandInteractionData,
+  APIContextMenuInteractionData,
   APIEmbed,
   APIEmoji,
   APIInteractionDataResolvedChannel,
@@ -41,15 +43,18 @@ import {
   APIPartialChannel,
   APIPartialEmoji,
   APIPartialGuild,
+  APIPoll,
+  APIPollAnswer,
   APIRole,
   APISelectMenuComponent,
   APITemplateSerializedSourceGuild,
   APIUser,
   GatewayVoiceServerUpdateDispatchData,
   GatewayVoiceStateUpdateDispatchData,
-  LocaleString,
+  Locale,
   LocalizationMap,
   MessageActivityType,
+  PollLayoutType,
   RESTPostAPIApplicationCommandsJSONBody,
   Snowflake,
 } from 'discord-api-types/v9';
@@ -426,10 +431,10 @@ export abstract class BaseCommandInteraction<Cached extends CacheType = CacheTyp
   public showModal(modal: Modal | ModalOptions): Promise<void>;
   private transformOption(
     option: APIApplicationCommandOption,
-    resolved: APIApplicationCommandInteractionData['resolved'],
+    resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
   ): CommandInteractionOption<Cached>;
   private transformResolved(
-    resolved: APIApplicationCommandInteractionData['resolved'],
+    resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
   ): CommandInteractionResolvedData<Cached>;
 }
 
@@ -2112,6 +2117,39 @@ export class Presence extends Base {
   public readonly user: User | null;
   public userId: Snowflake;
   public equals(presence: Presence): boolean;
+}
+
+export interface PollQuestionMedia {
+  text: string;
+}
+
+export class Poll extends Base {
+  private constructor(client: Client<true>, data: APIPoll, message: Message);
+  public readonly message: Message;
+  public question: PollQuestionMedia;
+  public answers: Collection<number, PollAnswer>;
+  public expiresTimestamp: number;
+  public get expiresAt(): Date;
+  public allowMultiselect: boolean;
+  public layoutType: PollLayoutType;
+  public resultsFinalized: boolean;
+  public end(): Promise<Message>;
+}
+
+export interface FetchPollVotersOptions {
+  after?: Snowflake;
+  limit?: number;
+}
+
+export class PollAnswer extends Base {
+  private constructor(client: Client<true>, data: APIPollAnswer & { count?: number }, poll: Poll);
+  private _emoji: APIPartialEmoji | null;
+  public readonly poll: Poll;
+  public id: number;
+  public text: string | null;
+  public voteCount: number;
+  public get emoji(): GuildEmoji | Emoji | null;
+  public fetchVoters(options?: FetchPollVotersOptions): Promise<Collection<Snowflake, User>>;
 }
 
 export class ReactionCollector extends Collector<Snowflake | string, MessageReaction, [User]> {
@@ -4437,6 +4475,19 @@ export interface BanOptions {
   reason?: string;
 }
 
+export interface PollData {
+  question: PollQuestionMedia;
+  answers: readonly PollAnswerData[];
+  duration: number;
+  allowMultiselect: boolean;
+  layoutType?: PollLayoutType;
+}
+
+export interface PollAnswerData {
+  text: string;
+  emoji?: EmojiIdentifierResolvable;
+}
+
 export type Base64Resolvable = Buffer | Base64String;
 
 export type Base64String = string;
@@ -4641,6 +4692,8 @@ export interface ClientEvents extends BaseClientEvents {
   message: [message: Message];
   messageCreate: [message: Message];
   messageDelete: [message: Message | PartialMessage];
+  messagePollVoteAdd: [pollAnswer: PollAnswer, userId: Snowflake];
+  messagePollVoteRemove: [pollAnswer: PollAnswer, userId: Snowflake];
   messageReactionRemoveAll: [
     message: Message | PartialMessage,
     reactions: Collection<string | Snowflake, MessageReaction>,
@@ -4912,6 +4965,8 @@ export interface ConstantsEvents {
   CHANNEL_PINS_UPDATE: 'channelPinsUpdate';
   MESSAGE_CREATE: 'messageCreate';
   MESSAGE_DELETE: 'messageDelete';
+  MESSAGE_POLL_VOTE_ADD: 'messagePollVoteAdd';
+  MESSAGE_POLL_VOTE_REMOVE: 'messagePollVoteRemove';
   MESSAGE_UPDATE: 'messageUpdate';
   MESSAGE_BULK_DELETE: 'messageDeleteBulk';
   MESSAGE_REACTION_ADD: 'messageReactionAdd';
@@ -5126,7 +5181,7 @@ interface Extendable {
 
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {
   guildId?: Snowflake;
-  locale?: LocaleString;
+  locale?: Locale;
   withLocalizations?: boolean;
 }
 
@@ -6051,6 +6106,7 @@ export interface MessageOptions {
   stickers?: StickerResolvable[];
   attachments?: MessageAttachment[];
   flags?: BitFieldResolvable<'SUPPRESS_EMBEDS' | 'SUPPRESS_NOTIFICATIONS', number>;
+  poll?: PollData;
 }
 
 export type MessageReactionResolvable = MessageReaction | Snowflake | string;

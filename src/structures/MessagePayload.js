@@ -214,6 +214,21 @@ class MessagePayload {
       this.options.attachments = attachments;
     }
 
+    let poll;
+    if (this.options.poll) {
+      poll = {
+        question: {
+          text: this.options.poll.question.text,
+        },
+        answers: this.options.poll.answers.map(answer => ({
+          poll_media: { text: answer.text, emoji: Util.resolvePartialEmoji(answer.emoji) },
+        })),
+        duration: this.options.poll.duration,
+        allow_multiselect: this.options.poll.allowMultiselect,
+        layout_type: this.options.poll.layoutType,
+      };
+    }
+
     this.data = {
       content,
       tts,
@@ -229,6 +244,7 @@ class MessagePayload {
       attachments: this.options.attachments,
       sticker_ids: this.options.stickers?.map(sticker => sticker.id ?? sticker),
       thread_name: threadName,
+      poll,
     };
     return this;
   }

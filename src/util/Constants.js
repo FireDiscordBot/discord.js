@@ -210,6 +210,8 @@ exports.Opcodes = {
  * * CHANNEL_PINS_UPDATE: channelPinsUpdate
  * * MESSAGE_CREATE: messageCreate
  * * MESSAGE_DELETE: messageDelete
+ * * MESSAGE_POLL_VOTE_ADD: messagePollVoteAdd
+ * * MESSAGE_POLL_VOTE_REMOVE: messagePollVoteRemove
  * * MESSAGE_UPDATE: messageUpdate
  * * MESSAGE_BULK_DELETE: messageDeleteBulk
  * * MESSAGE_REACTION_ADD: messageReactionAdd
@@ -295,6 +297,8 @@ exports.Events = {
   CHANNEL_PINS_UPDATE: 'channelPinsUpdate',
   MESSAGE_CREATE: 'messageCreate',
   MESSAGE_DELETE: 'messageDelete',
+  MESSAGE_POLL_VOTE_ADD: 'messagePollVoteAdd',
+  MESSAGE_POLL_VOTE_REMOVE: 'messagePollVoteRemove',
   MESSAGE_UPDATE: 'messageUpdate',
   MESSAGE_BULK_DELETE: 'messageDeleteBulk',
   MESSAGE_REACTION_ADD: 'messageReactionAdd',
