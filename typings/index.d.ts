@@ -6716,7 +6716,7 @@ export type WebhookEditMessageOptions = Pick<
   WebhookMessageOptions,
   'content' | 'embeds' | 'files' | 'allowedMentions' | 'components' | 'attachments' | 'threadId'
 >;
-export interface InteractionEditReplyOptions extends WebhookEditMessageOptions {
+export interface InteractionEditReplyOptions extends WebhookEditMessageOptions, Pick<MessageOptions, 'poll'> {
   message?: MessageResolvable | '@original';
 }
 
