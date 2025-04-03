@@ -21,6 +21,13 @@ class GuildMemberFlags extends BitField {}
  * * `COMPLETED_ONBOARDING`
  * * `BYPASSES_VERIFICATION`
  * * `STARTED_ONBOARDING`
+ * * `IS_GUEST`
+ * * `STARTED_SERVER_GUIDE`
+ * * `COMPLETED_SERVER_GUIDE`
+ * * `AUTOMOD_QUARANTINED_NAME`
+ * * `AUTOMOD_QUARANTINED_BIO`
+ * * `DM_SETTINGS_UPSELL_ACKNOWLEDGED`
+ * * `AUTOMOD_QUARANTINED_CLAN_TAG`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-flags}
  */
@@ -29,6 +36,13 @@ GuildMemberFlags.FLAGS = {
   COMPLETED_ONBOARDING: 1 << 1,
   BYPASSES_VERIFICATION: 1 << 2,
   STARTED_ONBOARDING: 1 << 3,
+  IS_GUEST: 1 << 4,
+  STARTED_SERVER_GUIDE: 1 << 5,
+  COMPLETED_SERVER_GUIDE: 1 << 6,
+  AUTOMOD_QUARANTINED_NAME: 1 << 7,
+  AUTOMOD_QUARANTINED_BIO: 1 << 8,
+  DM_SETTINGS_UPSELL_ACKNOWLEDGED: 1 << 9,
+  AUTOMOD_QUARANTINED_CLAN_TAG: 1 << 10,
 };
 
 /**

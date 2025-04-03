@@ -47,16 +47,16 @@ import {
   APIUser,
   GatewayVoiceServerUpdateDispatchData,
   GatewayVoiceStateUpdateDispatchData,
+  LocaleString,
+  LocalizationMap,
   MessageActivityType,
   RESTPostAPIApplicationCommandsJSONBody,
   Snowflake,
-  LocalizationMap,
-  LocaleString,
 } from 'discord-api-types/v9';
+import { Response } from 'node-fetch';
 import { ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { AgentOptions } from 'node:https';
-import { Response } from 'node-fetch';
 import { Stream } from 'node:stream';
 import { MessagePort, Worker } from 'node:worker_threads';
 import * as WebSocket from 'ws';
@@ -65,6 +65,7 @@ import {
   ApplicationCommandOptionTypes,
   ApplicationCommandPermissionTypes,
   ApplicationCommandTypes,
+  ApplicationRoleConnectionMetadataTypes,
   AutoModerationActionTypes,
   AutoModerationRuleEventTypes,
   AutoModerationRuleKeywordPresetTypes,
@@ -72,6 +73,10 @@ import {
   ChannelTypes,
   DefaultMessageNotificationLevels,
   ExplicitContentFilterLevels,
+  ForumLayoutType,
+  GuildScheduledEventEntityTypes,
+  GuildScheduledEventPrivacyLevels,
+  GuildScheduledEventStatuses,
   InteractionResponseTypes,
   InteractionTypes,
   InviteTargetType,
@@ -84,18 +89,13 @@ import {
   OverwriteTypes,
   PremiumTiers,
   PrivacyLevels,
+  SortOrderType,
   StickerFormatTypes,
   StickerTypes,
   TextInputStyles,
   VerificationLevels,
-  WebhookTypes,
-  GuildScheduledEventEntityTypes,
-  GuildScheduledEventStatuses,
-  GuildScheduledEventPrivacyLevels,
   VideoQualityModes,
-  SortOrderType,
-  ForumLayoutType,
-  ApplicationRoleConnectionMetadataTypes,
+  WebhookTypes,
 } from './enums';
 import {
   APIApplicationRoleConnectionMetadata,
@@ -5576,7 +5576,14 @@ export type GuildMemberFlagsString =
   | 'DID_REJOIN'
   | 'COMPLETED_ONBOARDING'
   | 'BYPASSES_VERIFICATION'
-  | 'STARTED_ONBOARDING';
+  | 'STARTED_ONBOARDING'
+  | `IS_GUEST`
+  | 'STARTED_SERVER_GUIDE'
+  | 'COMPLETED_SERVER_GUIDE'
+  | 'AUTOMOD_QUARANTINED_NAME'
+  | 'AUTOMOD_QUARANTINED_BIO'
+  | 'DM_SETTINGS_UPSELL_ACKNOWLEDGED'
+  | 'AUTOMOD_QUARANTINED_CLAN_TAG';
 
 export type GuildMemberFlagsResolvable = BitFieldResolvable<GuildMemberFlagsString, number>;
 
