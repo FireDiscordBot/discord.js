@@ -749,6 +749,7 @@ class Message extends Base {
         !this.flags.has(MessageFlags.FLAGS.CROSSPOSTED) &&
         this.reference.type !== MessageReferenceType.FORWARD &&
         this.type === 'DEFAULT' &&
+        !this.poll &&
         channel.viewable &&
         channel.permissionsFor(this.client.user)?.has(bitfield, false) &&
         !deletedMessages.has(this),
