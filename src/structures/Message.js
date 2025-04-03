@@ -22,7 +22,7 @@ const {
   MaxBulkDeletableMessageAge,
   MessageReferenceType,
 } = require('../util/Constants');
-const MessageFlags = require('../util/Me ssageFlags');
+const MessageFlags = require('../util/MessageFlags');
 const Permissions = require('../util/Permissions');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
