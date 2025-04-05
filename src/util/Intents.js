@@ -44,6 +44,8 @@ class Intents extends BitField {}
  * * `GUILD_SCHEDULED_EVENTS`
  * * `AUTO_MODERATION_CONFIGURATION`
  * * `AUTO_MODERATION_EXECUTION`
+ * * `GUILD_MESSAGE_POLLS`
+ * * `DIRECT_MESSAGE_POLLS`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/topics/gateway#list-of-intents}
  */

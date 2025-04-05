@@ -748,7 +748,7 @@ export interface CollectorEventTypes<K, V, F extends unknown[] = []> {
   end: [collected: Collection<K, V>, reason: string];
 }
 
-export type ChannelFlagsString = 'PINNED' | 'REQUIRE_TAG';
+export type ChannelFlagsString = 'PINNED' | 'REQUIRE_TAG' | 'HIDE_MEDIA_DOWNLOAD_OPTIONS';
 export class ChannelFlags extends BitField<ChannelFlagsString> {
   public static FLAGS: Record<ChannelFlagsString, number>;
   public static resolve(bit?: BitFieldResolvable<ChannelFlagsString, number>): number;
@@ -5825,7 +5825,9 @@ export type IntentsString =
   | 'MESSAGE_CONTENT'
   | 'GUILD_SCHEDULED_EVENTS'
   | 'AUTO_MODERATION_CONFIGURATION'
-  | 'AUTO_MODERATION_EXECUTION';
+  | 'AUTO_MODERATION_EXECUTION'
+  | 'GUILD_MESSAGE_POLLS'
+  | 'DIRECT_MESSAGE_POLLS';
 
 export interface InviteGenerationOptions {
   permissions?: PermissionResolvable;
@@ -6052,7 +6054,8 @@ export type MessageFlagsString =
   | 'LOADING'
   | 'FAILED_TO_MENTION_SOME_ROLES_IN_THREAD'
   | 'SUPPRESS_NOTIFICATIONS'
-  | 'IS_VOICE_MESSAGE';
+  | 'IS_VOICE_MESSAGE'
+  | 'HAS_SNAPSHOT';
 
 export interface MessageInteraction {
   id: Snowflake;

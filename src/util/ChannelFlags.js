@@ -12,6 +12,7 @@ class ChannelFlags extends BitField {}
  * Numeric guild channel flags. All available properties:
  * * `PINNED`
  * * `REQUIRE_TAG`
+ * * `HIDE_MEDIA_DOWNLOAD_OPTIONS`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/resources/channel#channel-object-channel-flags}
  */

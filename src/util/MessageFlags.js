@@ -34,6 +34,7 @@ class MessageFlags extends BitField {}
  * * `FAILED_TO_MENTION_SOME_ROLES_IN_THREAD`
  * * `SUPPRESS_NOTIFICATIONS`
  * * `IS_VOICE_MESSAGE`
+ * * `HAS_SNAPSHOT`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/resources/channel#message-object-message-flags}
  */
