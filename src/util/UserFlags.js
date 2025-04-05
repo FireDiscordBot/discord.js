@@ -37,6 +37,7 @@ class UserFlags extends BitField {}
  * * `DISCORD_CERTIFIED_MODERATOR`
  * * `BOT_HTTP_INTERACTIONS`
  * * `ACTIVE_DEVELOPER`
+ * * `PROVISIONAL_ACCOUNT`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/resources/user#user-object-user-flags}
  */
