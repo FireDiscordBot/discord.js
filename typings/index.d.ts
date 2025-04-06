@@ -6271,7 +6271,12 @@ export type PermissionString =
   | 'MANAGE_EVENTS'
   | 'VIEW_CREATOR_MONETIZATION_ANALYTICS'
   | 'USE_SOUNDBOARD'
-  | 'SEND_VOICE_MESSAGES';
+  | 'CREATE_GUILD_EXPRESSIONS'
+  | 'CREATE_EVENTS'
+  | 'USE_EXTERNAL_SOUNDS'
+  | 'SEND_VOICE_MESSAGES'
+  | 'SEND_POLLS'
+  | 'USE_EXTERNAL_APPS';
 
 export type RecursiveArray<T> = ReadonlyArray<T | RecursiveArray<T>>;
 
