@@ -1,6 +1,7 @@
 'use strict';
 
 const { Channel } = require('./Channel');
+const ThreadOnlyChannel = require('./ThreadOnlyChannel');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
 const { RangeError } = require('../errors');
 const MessageManager = require('../managers/MessageManager');
@@ -246,7 +247,7 @@ class ThreadChannel extends Channel {
 
   /**
    * The parent channel of this thread
-   * @type {?(NewsChannel|TextChannel|ForumChannel)}
+   * @type {?(NewsChannel|TextChannel|ForumChannel|MediaChannel)}
    * @readonly
    */
   get parent() {
@@ -309,7 +310,7 @@ class ThreadChannel extends Channel {
    */
   // eslint-disable-next-line require-await
   async fetchStarterMessage(options) {
-    const channel = this.parent?.type === 'GUILD_FORUM' ? this : this.parent;
+    const channel = this.parent instanceof ThreadOnlyChannel ? this : this.parent;
     return channel?.messages.fetch(this.id, options) ?? null;
   }
 

@@ -711,6 +711,7 @@ exports.ChannelTypes = createEnum([
   'GUILD_STAGE_VOICE',
   'GUILD_DIRECTORY',
   'GUILD_FORUM',
+  'GUILD_MEDIA',
 ]);
 
 /**
@@ -762,6 +763,14 @@ exports.TextBasedChannelTypes = [
  * @typedef {string} ThreadChannelTypes
  */
 exports.ThreadChannelTypes = ['GUILD_NEWS_THREAD', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'];
+
+/**
+ * The types of channels that contain only threads. The available types are:
+ * * GUILD_FORUM
+ * * GUILD_MEDIA
+ * @typedef {string} ThreadOnlyChannelTypes
+ */
+exports.ThreadOnlyChannelTypes = ['GUILD_FORUM', 'GUILD_MEDIA'];
 
 /**
  * The types of channels that are voice-based. The available types are:

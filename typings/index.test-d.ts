@@ -1,17 +1,19 @@
+import type { ContextMenuCommandBuilder, SlashCommandBuilder } from '@discordjs/builders';
 import type { ChildProcess } from 'child_process';
-import type { Worker } from 'worker_threads';
 import type {
+  APIButtonComponent,
+  APIInteractionDataResolvedChannel,
+  APIInteractionDataResolvedGuildMember,
   APIInteractionGuildMember,
   APIMessage,
   APIPartialChannel,
   APIPartialGuild,
-  APIInteractionDataResolvedGuildMember,
-  APIInteractionDataResolvedChannel,
   APIRole,
-  APIButtonComponent,
   APISelectMenuComponent,
 } from 'discord-api-types/v9';
 import { AuditLogEvent } from 'discord-api-types/v9';
+import { expectAssignable, expectDeprecated, expectNotAssignable, expectNotType, expectType } from 'tsd';
+import type { Worker } from 'worker_threads';
 import {
   ApplicationCommand,
   ApplicationCommandData,
@@ -29,6 +31,7 @@ import {
   ClientUser,
   CloseEvent,
   Collection,
+  Collector,
   CommandInteraction,
   CommandInteractionOption,
   CommandInteractionOptionResolver,
@@ -36,27 +39,41 @@ import {
   Constants,
   ContextMenuInteraction,
   DMChannel,
+  Emoji,
+  ForumChannel,
   Guild,
   GuildApplicationCommandManager,
+  GuildAuditLogs,
+  GuildAuditLogsEntry,
+  GuildBan,
+  GuildBanManager,
+  GuildBasedChannel,
   GuildChannelManager,
   GuildEmoji,
   GuildEmojiManager,
   GuildMember,
   GuildResolvable,
+  GuildTextBasedChannel,
   Intents,
   Interaction,
   InteractionCollector,
+  InteractionResponseFields,
   LimitedCollection,
+  MediaChannel,
   Message,
   MessageActionRow,
+  MessageActionRowComponent,
   MessageAttachment,
   MessageButton,
   MessageCollector,
   MessageComponentInteraction,
   MessageEmbed,
   MessageReaction,
+  MessageSelectMenu,
   NewsChannel,
+  NonThreadGuildBasedChannel,
   Options,
+  PartialDMChannel,
   PartialTextBasedChannelFields,
   PartialUser,
   Permissions,
@@ -65,44 +82,28 @@ import {
   RoleManager,
   SelectMenuInteraction,
   Serialized,
+  Shard,
   ShardClientUtil,
   ShardingManager,
   Snowflake,
   StageChannel,
+  StageInstance,
+  Sticker,
   StoreChannel,
-  TextBasedChannelFields,
   TextBasedChannel,
+  TextBasedChannelFields,
   TextBasedChannelTypes,
-  VoiceBasedChannel,
-  GuildBasedChannel,
-  NonThreadGuildBasedChannel,
-  GuildTextBasedChannel,
   TextChannel,
   ThreadChannel,
   ThreadMember,
+  ThreadMemberManager,
   Typing,
   User,
+  VoiceBasedChannel,
   VoiceChannel,
-  Shard,
   WebSocketShard,
-  Collector,
-  GuildAuditLogsEntry,
-  GuildAuditLogs,
-  StageInstance,
-  Sticker,
-  Emoji,
-  MessageActionRowComponent,
-  MessageSelectMenu,
-  PartialDMChannel,
-  InteractionResponseFields,
-  GuildBan,
-  GuildBanManager,
-  ForumChannel,
-  ThreadMemberManager,
 } from '.';
 import type { ApplicationCommandOptionTypes } from './enums';
-import { expectAssignable, expectDeprecated, expectNotAssignable, expectNotType, expectType } from 'tsd';
-import type { ContextMenuCommandBuilder, SlashCommandBuilder } from '@discordjs/builders';
 
 // Test type transformation:
 declare const serialize: <T>(value: T) => Serialized<T>;
@@ -906,7 +907,8 @@ declare const guildChannelManager: GuildChannelManager;
     | NewsChannel
     | StoreChannel
     | StageChannel
-    | ForumChannel;
+    | ForumChannel
+    | MediaChannel;
 
   expectType<Promise<TextChannel>>(guildChannelManager.create('name'));
   expectType<Promise<TextChannel>>(guildChannelManager.create('name', {}));
@@ -1354,10 +1356,11 @@ expectType<
   | ThreadChannel
   | VoiceChannel
   | ForumChannel
+  | MediaChannel
 >(GuildBasedChannel);
-expectType<CategoryChannel | NewsChannel | StageChannel | StoreChannel | TextChannel | VoiceChannel | ForumChannel>(
-  NonThreadGuildBasedChannel,
-);
+expectType<
+  CategoryChannel | NewsChannel | StageChannel | StoreChannel | TextChannel | VoiceChannel | ForumChannel | MediaChannel
+>(NonThreadGuildBasedChannel);
 
 declare const threadMemberWithGuildMember: ThreadMember<true>;
 declare const threadMemberManager: ThreadMemberManager;

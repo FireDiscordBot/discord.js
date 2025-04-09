@@ -14,6 +14,7 @@
  * * **`StoreChannel`**
  * * **`DirectoryChannel`**
  * * **`ForumChannel`**
+ * * **`MediaChannel`**
  * * **`GuildMember`**
  * * **`ThreadMember`**
  * * **`Guild`**
@@ -115,6 +116,7 @@ const structures = {
   DirectoryChannel: require('../structures/DirectoryChannel'),
   StoreChannel: require('../structures/StoreChannel'),
   ForumChannel: require('../structures/ForumChannel'),
+  MediaChannel: require('../structures/MediaChannel'),
   GuildMember: require('../structures/GuildMember').GuildMember,
   ThreadMember: require('../structures/ThreadMember'),
   Guild: require('../structures/Guild').Guild,

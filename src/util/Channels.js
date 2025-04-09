@@ -58,6 +58,9 @@ function createChannel(client, data, guild, { allowUnknownGuild, fromInteraction
         case ChannelType.GuildForum:
           channel = new (Structures.get('ForumChannel'))(guild, data, client);
           break;
+        case ChannelType.GuildMedia:
+          channel = new (Structures.get('MediaChannel'))(guild, data, client);
+          break;
       }
       if (channel && !allowUnknownGuild) guild.channels?.cache.set(channel.id, channel);
     }

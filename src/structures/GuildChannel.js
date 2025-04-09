@@ -16,6 +16,7 @@ const { getSortableGroupTypes } = require('../util/Util');
  * - {@link StoreChannel}
  * - {@link StageChannel}
  * - {@link ForumChannel}
+ * - {@link MediaChannel}
  * @extends {Channel}
  * @abstract
  */

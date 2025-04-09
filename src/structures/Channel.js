@@ -3,7 +3,12 @@
 const process = require('node:process');
 const Base = require('./Base');
 const ChannelFlags = require('../util/ChannelFlags');
-const { ChannelTypes, ThreadChannelTypes, VoiceBasedChannelTypes } = require('../util/Constants');
+const {
+  ChannelTypes,
+  ThreadChannelTypes,
+  ThreadOnlyChannelTypes,
+  VoiceBasedChannelTypes,
+} = require('../util/Constants');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
@@ -176,6 +181,14 @@ class Channel extends Base {
     return this.type === 'GUILD_DIRECTORY';
   }
 
+  /**
+   * Indicates whether this channel is {@link ThreadOnlyChannel thread-only}.
+   * @returns {boolean}
+   */
+  isThreadOnly() {
+    return ThreadOnlyChannelTypes.includes(this.type);
+  }
+
   static create(client, data, guild, { allowUnknownGuild, fromInteraction } = {}) {
     const Structures = require('../util/Structures');
     let channel;
@@ -230,16 +243,19 @@ class Channel extends Base {
             if (!allowUnknownGuild) channel.parent?.threads.cache.set(channel.id, channel);
             break;
           }
-
           case ChannelTypes.GUILD_DIRECTORY: {
             const DirectoryChannel = Structures.get('DirectoryChannel');
             channel = new DirectoryChannel(data);
             break;
           }
-
           case ChannelTypes.GUILD_FORUM: {
             const ForumChannel = Structures.get('ForumChannel');
             channel = new ForumChannel(guild, data, client);
+            break;
+          }
+          case ChannelTypes.GUILD_MEDIA: {
+            const MediaChannel = Structures.get('MediaChannel');
+            channel = new MediaChannel(guild, data, client);
             break;
           }
         }

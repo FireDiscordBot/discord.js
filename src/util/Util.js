@@ -14,7 +14,7 @@ let deprecationEmittedForSplitMessage = false;
 let deprecationEmittedForRemoveMentions = false;
 let deprecationEmittedForResolveAutoArchiveMaxLimit = false;
 
-const TextSortableGroupTypes = ['GUILD_TEXT', 'GUILD_ANNOUCMENT', 'GUILD_FORUM'];
+const TextSortableGroupTypes = ['GUILD_TEXT', 'GUILD_ANNOUCMENT', 'GUILD_FORUM', 'GUILD_MEDIA'];
 const VoiceSortableGroupTypes = ['GUILD_VOICE', 'GUILD_STAGE_VOICE'];
 const CategorySortableGroupTypes = ['GUILD_CATEGORY'];
 
@@ -755,6 +755,7 @@ class Util extends null {
       case 'GUILD_TEXT':
       case 'GUILD_ANNOUNCEMENT':
       case 'GUILD_FORUM':
+      case 'GUILD_MEDIA':
         return TextSortableGroupTypes;
       case 'GUILD_VOICE':
       case 'GUILD_STAGE_VOICE':
