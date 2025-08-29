@@ -274,7 +274,68 @@ class Interaction extends Base {
   isSelectMenu() {
     return (
       InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
-      MessageComponentTypes[this.componentType] === MessageComponentTypes.SELECT_MENU
+      (MessageComponentTypes[this.componentType] === MessageComponentTypes.SELECT_MENU ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.STRING_SELECT ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.USER_SELECT ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.ROLE_SELECT ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.MENTIONABLE_SELECT ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.CHANNEL_SELECT)
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a regular string select menu
+   * @returns {boolean}
+   */
+  isStringSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      (MessageComponentTypes[this.componentType] === MessageComponentTypes.MESSAGE_SELECT ||
+        MessageComponentTypes[this.componentType] === MessageComponentTypes.STRING_SELECT)
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a regular user select menu
+   * @returns {boolean}
+   */
+  isUserSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.USER_SELECT
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a regular role select menu
+   * @returns {boolean}
+   */
+  isRoleSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.ROLE_SELECT
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a regular mentionable select menu
+   * @returns {boolean}
+   */
+  isMentionableSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.MENTIONABLE_SELECT
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a regular channel select menu
+   * @returns {boolean}
+   */
+  isChannelSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.CHANNEL_SELECT
     );
   }
 

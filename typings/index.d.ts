@@ -1482,6 +1482,12 @@ export class Interaction<Cached extends CacheType = CacheType> extends Base {
   public isMessageComponent(): this is MessageComponentInteraction<Cached>;
   public isModalSubmit(): this is ModalSubmitInteraction<Cached>;
   public isSelectMenu(): this is SelectMenuInteraction<Cached>;
+  // TODO: see if we can differentiate the types
+  public isStringSelectMenu(): this is SelectMenuInteraction<Cached>;
+  public isUserSelectMenu(): this is SelectMenuInteraction<Cached>;
+  public isRoleSelectMenu(): this is SelectMenuInteraction<Cached>;
+  public isMentionableSelectMenu(): this is SelectMenuInteraction<Cached>;
+  public isChannelSelectMenu(): this is SelectMenuInteraction<Cached>;
   public isRepliable(): this is this & InteractionResponseFields<Cached>;
   private transformResolved(
     resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
@@ -1618,12 +1624,13 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
   {
     BUTTON: ButtonInteraction<WrapBooleanCache<Cached>>;
     SELECT_MENU: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    STRING_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
     ACTION_ROW: MessageComponentInteraction<WrapBooleanCache<Cached>>;
     TEXT_INPUT: ModalSubmitInteraction<WrapBooleanCache<Cached>>;
-    USER_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
-    ROLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
-    MENTIONABLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
-    CHANNEL_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    USER_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'USER_SELECT'>;
+    ROLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'ROLE_SELECT'>;
+    MENTIONABLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'MENTIONABLE_SELECT'>;
+    CHANNEL_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'CHANNEL_SELECT'>;
     // TODO: implement these lol
     SECTION: never;
     TEXT_DISPLAY: never;
@@ -2332,7 +2339,16 @@ export class RoleFlags extends BitField<RoleFlagsString> {
 
 export type RoleFlagsString = 'IN_PROMPT';
 
-export class SelectMenuInteraction<Cached extends CacheType = CacheType> extends MessageComponentInteraction<Cached> {
+export class SelectMenuInteraction<
+  Cached extends CacheType = CacheType,
+  MenuType extends
+    | 'SELECT_MENU'
+    | 'STRING_SELECT'
+    | 'USER_SELECT'
+    | 'ROLE_SELECT'
+    | 'MENTIONABLE_SELECT'
+    | 'CHANNEL_SELECT' = 'SELECT_MENU',
+> extends MessageComponentInteraction<Cached> {
   public constructor(client: Client, data: RawMessageSelectMenuInteractionData);
   public readonly component: CacheTypeReducer<
     Cached,
@@ -2342,7 +2358,7 @@ export class SelectMenuInteraction<Cached extends CacheType = CacheType> extends
     MessageSelectMenu | UserSelectMenu | APISelectMenuComponent
   >;
   public readonly resolved: Readonly<CommandInteractionResolvedData<Cached>>;
-  public componentType: 'SELECT_MENU' | 'USER_SELECT' | 'ROLE_SELECT' | 'MENTIONABLE_SELECT';
+  public componentType: MenuType;
   public values: string[];
   public inGuild(): this is SelectMenuInteraction<'raw' | 'cached'>;
   public inCachedGuild(): this is SelectMenuInteraction<'cached'>;
