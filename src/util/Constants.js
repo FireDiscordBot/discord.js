@@ -1410,10 +1410,40 @@ exports.InteractionResponseTypes = createEnum([
  * * BUTTON
  * * SELECT_MENU
  * * TEXT_INPUT
+ * * USER_SELECT
+ * * ROLE_SELECT
+ * * MENTIONABLE_SELECT
+ * * CHANNEL_SELECT
+ * * SECTION
+ * * TEXT_DISPLAY
+ * * THUMBNAIL
+ * * MEDIA_GALLERY
+ * * FILE
+ * * SEPARATOR
+ * * CONTAINER
  * @typedef {string} MessageComponentType
  * @see {@link https://discord.com/developers/docs/interactions/message-components#component-object-component-types}
  */
-exports.MessageComponentTypes = createEnum([null, 'ACTION_ROW', 'BUTTON', 'SELECT_MENU', 'TEXT_INPUT']);
+exports.MessageComponentTypes = createEnum([
+  null,
+  'ACTION_ROW',
+  'BUTTON',
+  'SELECT_MENU',
+  'TEXT_INPUT',
+  'USER_SELECT',
+  'ROLE_SELECT',
+  'MENTIONABLE_SELECT',
+  'CHANNEL_SELECT',
+  'SECTION',
+  'TEXT_DISPLAY',
+  'THUMBNAIL',
+  'MEDIA_GALLERY',
+  'FILE',
+  'SEPARATOR',
+  null,
+  null,
+  'CONTAINER',
+]);
 
 /**
  * The style of a message button

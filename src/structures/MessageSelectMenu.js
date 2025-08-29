@@ -1,22 +1,17 @@
 'use strict';
 
-const BaseMessageComponent = require('./BaseMessageComponent');
+const BaseSelectMenu = require('./BaseSelectMenu');
 const { MessageComponentTypes } = require('../util/Constants');
 const Util = require('../util/Util');
 
 /**
  * Represents a select menu message component
- * @extends {BaseMessageComponent}
+ * @extends {BaseSelectMenu}
  */
-class MessageSelectMenu extends BaseMessageComponent {
+class MessageSelectMenu extends BaseSelectMenu {
   /**
-   * @typedef {BaseMessageComponentOptions} MessageSelectMenuOptions
-   * @property {string} [customId] A unique string to be sent in the interaction when clicked
-   * @property {string} [placeholder] Custom placeholder text to display when nothing is selected
-   * @property {number} [minValues] The minimum number of selections required
-   * @property {number} [maxValues] The maximum number of selections allowed
+   * @typedef {BaseSelectMenuOptions} MessageSelectMenuOptions
    * @property {MessageSelectOption[]} [options] Options for the select menu
-   * @property {boolean} [disabled=false] Disables the select menu to prevent interactions
    */
 
   /**
@@ -47,92 +42,13 @@ class MessageSelectMenu extends BaseMessageComponent {
   }
 
   setup(data) {
-    /**
-     * A unique string to be sent in the interaction when clicked
-     * @type {?string}
-     */
-    this.customId = data.custom_id ?? data.customId ?? null;
-
-    /**
-     * Custom placeholder text to display when nothing is selected
-     * @type {?string}
-     */
-    this.placeholder = data.placeholder ?? null;
-
-    /**
-     * The minimum number of selections required
-     * @type {?number}
-     */
-    this.minValues = data.min_values ?? data.minValues ?? null;
-
-    /**
-     * The maximum number of selections allowed
-     * @type {?number}
-     */
-    this.maxValues = data.max_values ?? data.maxValues ?? null;
+    super.setup(data);
 
     /**
      * Options for the select menu
      * @type {MessageSelectOption[]}
      */
     this.options = this.constructor.normalizeOptions(data.options ?? []);
-
-    /**
-     * Whether this select menu is currently disabled
-     * @type {boolean}
-     */
-    this.disabled = data.disabled ?? false;
-  }
-
-  /**
-   * Sets the custom id of this select menu
-   * @param {string} customId A unique string to be sent in the interaction when clicked
-   * @returns {MessageSelectMenu}
-   */
-  setCustomId(customId) {
-    this.customId = Util.verifyString(customId, RangeError, 'SELECT_MENU_CUSTOM_ID');
-    return this;
-  }
-
-  /**
-   * Sets the interactive status of the select menu
-   * @param {boolean} [disabled=true] Whether this select menu should be disabled
-   * @returns {MessageSelectMenu}
-   */
-  setDisabled(disabled = true) {
-    this.disabled = disabled;
-    return this;
-  }
-
-  /**
-   * Sets the maximum number of selections allowed for this select menu
-   * @param {number} maxValues Number of selections to be allowed
-   * @returns {MessageSelectMenu}
-   */
-  setMaxValues(maxValues) {
-    this.maxValues = maxValues;
-    return this;
-  }
-
-  /**
-   * Sets the minimum number of selections required for this select menu
-   * <info>This will default the maxValues to the number of options, unless manually set</info>
-   * @param {number} minValues Number of selections to be required
-   * @returns {MessageSelectMenu}
-   */
-  setMinValues(minValues) {
-    this.minValues = minValues;
-    return this;
-  }
-
-  /**
-   * Sets the placeholder of this select menu
-   * @param {string} placeholder Custom placeholder text to display when nothing is selected
-   * @returns {MessageSelectMenu}
-   */
-  setPlaceholder(placeholder) {
-    this.placeholder = Util.verifyString(placeholder, RangeError, 'SELECT_MENU_PLACEHOLDER');
-    return this;
   }
 
   /**
@@ -151,7 +67,7 @@ class MessageSelectMenu extends BaseMessageComponent {
    * @returns {MessageSelectMenu}
    */
   setOptions(...options) {
-    this.spliceOptions(0, this.options.length, options);
+    this.spliceDefaultValues(0, this.options.length, options);
     return this;
   }
 
@@ -162,7 +78,7 @@ class MessageSelectMenu extends BaseMessageComponent {
    * @param {...MessageSelectOptionData|MessageSelectOptionData[]} [options] The replacing option objects
    * @returns {MessageSelectMenu}
    */
-  spliceOptions(index, deleteCount, ...options) {
+  spliceDefaultValues(index, deleteCount, ...options) {
     this.options.splice(index, deleteCount, ...this.constructor.normalizeOptions(...options));
     return this;
   }

@@ -28,6 +28,7 @@ import {
   APIApplicationCommandPermission,
   APIAuditLogChange,
   APIButtonComponent,
+  APIChannelSelectComponent,
   APIChatInputApplicationCommandInteractionData,
   APIContextMenuInteractionData,
   APIEmbed,
@@ -35,6 +36,7 @@ import {
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
   APIInteractionGuildMember,
+  APIMentionableSelectComponent,
   APIMessage,
   APIMessageActionRowComponent,
   APIMessageComponent,
@@ -46,9 +48,11 @@ import {
   APIPoll,
   APIPollAnswer,
   APIRole,
+  APIRoleSelectComponent,
   APISelectMenuComponent,
   APITemplateSerializedSourceGuild,
   APIUser,
+  APIUserSelectComponent,
   GatewayVoiceServerUpdateDispatchData,
   GatewayVoiceStateUpdateDispatchData,
   Locale,
@@ -434,9 +438,6 @@ export abstract class BaseCommandInteraction<Cached extends CacheType = CacheTyp
     option: APIApplicationCommandOption,
     resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
   ): CommandInteractionOption<Cached>;
-  private transformResolved(
-    resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
-  ): CommandInteractionResolvedData<Cached>;
 }
 
 export abstract class BaseGuild extends Base {
@@ -1482,6 +1483,9 @@ export class Interaction<Cached extends CacheType = CacheType> extends Base {
   public isModalSubmit(): this is ModalSubmitInteraction<Cached>;
   public isSelectMenu(): this is SelectMenuInteraction<Cached>;
   public isRepliable(): this is this & InteractionResponseFields<Cached>;
+  private transformResolved(
+    resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
+  ): CommandInteractionResolvedData<Cached>;
 }
 
 export class InteractionCollector<T extends Interaction> extends Collector<Snowflake, T> {
@@ -1616,6 +1620,18 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
     SELECT_MENU: SelectMenuInteraction<WrapBooleanCache<Cached>>;
     ACTION_ROW: MessageComponentInteraction<WrapBooleanCache<Cached>>;
     TEXT_INPUT: ModalSubmitInteraction<WrapBooleanCache<Cached>>;
+    USER_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    ROLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    MENTIONABLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    CHANNEL_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>>;
+    // TODO: implement these lol
+    SECTION: never;
+    TEXT_DISPLAY: never;
+    THUMBNAIL: never;
+    MEDIA_GALLERY: never;
+    FILE: never;
+    SEPARATOR: never;
+    CONTAINER: never;
   }
 >;
 
@@ -1956,28 +1972,91 @@ export class MessageReaction {
   public toJSON(): unknown;
 }
 
-export class MessageSelectMenu extends BaseMessageComponent {
-  public constructor(data?: MessageSelectMenu | MessageSelectMenuOptions | APISelectMenuComponent);
+export class BaseSelectMenu extends BaseMessageComponent {
+  public constructor(data?: BaseSelectMenu | BaseSelectMenuOptions | APISelectMenuComponent);
   public customId: string | null;
   public disabled: boolean;
   public maxValues: number | null;
   public minValues: number | null;
-  public options: MessageSelectOption[];
   public placeholder: string | null;
   public type: 'SELECT_MENU';
-  public addOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
-  public setOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
   public setCustomId(customId: string): this;
   public setDisabled(disabled?: boolean): this;
   public setMaxValues(maxValues: number): this;
   public setMinValues(minValues: number): this;
   public setPlaceholder(placeholder: string): this;
+  public toJSON(): APISelectMenuComponent;
+}
+
+export class MessageSelectMenu extends BaseSelectMenu {
+  public constructor(data?: MessageSelectMenu | MessageSelectMenuOptions | APISelectMenuComponent);
+  public options: MessageSelectOption[];
+  public addOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
+  public setOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
   public spliceOptions(
     index: number,
     deleteCount: number,
     ...options: MessageSelectOptionData[] | MessageSelectOptionData[][]
   ): this;
   public toJSON(): APISelectMenuComponent;
+}
+
+export class StringSelectMenu extends MessageSelectMenu {}
+
+export class UserSelectMenu extends BaseSelectMenu {
+  public constructor(data?: UserSelectMenu | UserSelectMenuOptions | APISelectMenuComponent);
+  public defaultValues: UserSelectDefaultValue[];
+  public addDefaultValues(...defaultValues: UserSelectDefaultValue[] | UserSelectDefaultValue[][]): this;
+  public setDefaultValues(...defaultValues: UserSelectDefaultValue[] | UserSelectDefaultValue[][]): this;
+  public spliceDefaultValues(
+    index: number,
+    deleteCount: number,
+    ...defaultValues: UserSelectDefaultValue[] | UserSelectDefaultValue[][]
+  ): this;
+  public toJSON(): APIUserSelectComponent;
+}
+
+export class RoleSelectMenu extends BaseSelectMenu {
+  public constructor(data?: RoleSelectMenu | RoleSelectMenuOptions | APISelectMenuComponent);
+  public defaultValues: RoleSelectDefaultValue[];
+  public addDefaultValues(...defaultValues: RoleSelectDefaultValue[] | RoleSelectDefaultValue[][]): this;
+  public setDefaultValues(...defaultValues: RoleSelectDefaultValue[] | RoleSelectDefaultValue[][]): this;
+  public spliceDefaultValues(
+    index: number,
+    deleteCount: number,
+    ...defaultValues: RoleSelectDefaultValue[] | RoleSelectDefaultValue[][]
+  ): this;
+  public toJSON(): APIRoleSelectComponent;
+}
+
+export class MentionableSelectMenu extends BaseSelectMenu {
+  public constructor(data?: MentionableSelectMenu | MentionableSelectMenuOptions | APISelectMenuComponent);
+  public defaultValues: MentionableSelectDefaultValue[];
+  public addDefaultValues(...defaultValues: MentionableSelectDefaultValue[] | MentionableSelectDefaultValue[][]): this;
+  public setDefaultValues(...defaultValues: MentionableSelectDefaultValue[] | MentionableSelectDefaultValue[][]): this;
+  public spliceDefaultValues(
+    index: number,
+    deleteCount: number,
+    ...defaultValues: MentionableSelectDefaultValue[] | MentionableSelectDefaultValue[][]
+  ): this;
+  public toJSON(): APIMentionableSelectComponent;
+}
+
+export class ChannelSelectMenu extends BaseSelectMenu {
+  public constructor(data?: ChannelSelectMenu | ChannelSelectMenuOptions | APISelectMenuComponent);
+  public channelTypes: ChannelTypes[] | null;
+  public defaultValues: ChannelSelectDefaultValue[];
+  public addChannelTypes(...channelTypes: ChannelTypes[] | ChannelTypes[][]): this;
+  public setChannelTypes(...channelTypes: ChannelTypes[] | ChannelTypes[][]): this;
+  public clearChannelTypes(): this;
+  public addDefaultValues(...defaultValues: ChannelSelectDefaultValue[] | ChannelSelectDefaultValue[][]): this;
+  public setDefaultValues(...defaultValues: ChannelSelectDefaultValue[] | ChannelSelectDefaultValue[][]): this;
+  public spliceDefaultValues(
+    index: number,
+    deleteCount: number,
+    ...defaultValues: ChannelSelectDefaultValue[] | ChannelSelectDefaultValue[][]
+  ): this;
+  public toJSON(): APIChannelSelectComponent;
 }
 
 export class Modal {
@@ -2257,12 +2336,13 @@ export class SelectMenuInteraction<Cached extends CacheType = CacheType> extends
   public constructor(client: Client, data: RawMessageSelectMenuInteractionData);
   public readonly component: CacheTypeReducer<
     Cached,
-    MessageSelectMenu,
+    MessageSelectMenu | UserSelectMenu,
     APISelectMenuComponent,
-    MessageSelectMenu | APISelectMenuComponent,
-    MessageSelectMenu | APISelectMenuComponent
+    MessageSelectMenu | UserSelectMenu | APISelectMenuComponent,
+    MessageSelectMenu | UserSelectMenu | APISelectMenuComponent
   >;
-  public componentType: 'SELECT_MENU';
+  public readonly resolved: Readonly<CommandInteractionResolvedData<Cached>>;
+  public componentType: 'SELECT_MENU' | 'USER_SELECT' | 'ROLE_SELECT' | 'MENTIONABLE_SELECT';
   public values: string[];
   public inGuild(): this is SelectMenuInteraction<'raw' | 'cached'>;
   public inCachedGuild(): this is SelectMenuInteraction<'cached'>;
@@ -5900,11 +5980,12 @@ export type MemberMention = UserMention | `<@!${Snowflake}>`;
 
 export type MembershipState = keyof typeof MembershipStates;
 
-export type MessageActionRowComponent = MessageButton | MessageSelectMenu;
+export type MessageActionRowComponent = MessageButton | MessageSelectMenu | UserSelectMenu;
 
 export type MessageActionRowComponentOptions =
   | (Required<BaseMessageComponentOptions> & MessageButtonOptions)
-  | (Required<BaseMessageComponentOptions> & MessageSelectMenuOptions);
+  | (Required<BaseMessageComponentOptions> & MessageSelectMenuOptions)
+  | (Required<BaseMessageComponentOptions> & UserSelectMenuOptions);
 
 export type MessageActionRowComponentResolvable =
   | MessageActionRowComponent
@@ -5975,7 +6056,8 @@ export type MessageComponentOptions =
   | BaseMessageComponentOptions
   | MessageActionRowOptions
   | MessageButtonOptions
-  | MessageSelectMenuOptions;
+  | MessageSelectMenuOptions
+  | UserSelectMenuOptions;
 
 export type MessageComponentType = keyof typeof MessageComponentTypes;
 
@@ -6137,13 +6219,16 @@ export interface MessageReference {
 
 export type MessageResolvable = Message | Snowflake;
 
-export interface MessageSelectMenuOptions extends BaseMessageComponentOptions {
+export interface BaseSelectMenuOptions extends BaseMessageComponentOptions {
   customId?: string;
   disabled?: boolean;
   maxValues?: number;
   minValues?: number;
-  options?: MessageSelectOptionData[];
   placeholder?: string;
+}
+
+export interface MessageSelectMenuOptions extends BaseSelectMenuOptions {
+  options?: MessageSelectOptionData[];
 }
 
 export interface MessageSelectOption {
@@ -6160,6 +6245,43 @@ export interface MessageSelectOptionData {
   emoji?: EmojiIdentifierResolvable;
   label: string;
   value: string;
+}
+
+export interface UserSelectMenuOptions extends BaseSelectMenuOptions {
+  defaultValues?: UserSelectDefaultValue[];
+}
+
+export interface UserSelectDefaultValue {
+  id: Snowflake;
+  type: 'user';
+}
+
+export interface RoleSelectMenuOptions extends BaseSelectMenuOptions {
+  defaultValues?: RoleSelectDefaultValue[];
+}
+
+export interface RoleSelectDefaultValue {
+  id: Snowflake;
+  type: 'role';
+}
+
+export interface MentionableSelectMenuOptions extends BaseSelectMenuOptions {
+  defaultValues?: MentionableSelectDefaultValue[];
+}
+
+export interface MentionableSelectDefaultValue {
+  id: Snowflake;
+  type: 'user' | 'role';
+}
+
+export interface ChannelSelectMenuOptions extends BaseSelectMenuOptions {
+  channelTypes?: ChannelTypes[];
+  defaultValues?: ChannelSelectDefaultValue[];
+}
+
+export interface ChannelSelectDefaultValue {
+  id: Snowflake;
+  type: 'channel';
 }
 
 export type MessageTarget =

@@ -11,10 +11,18 @@ class SelectMenuInteraction extends MessageComponentInteraction {
     super(client, data);
 
     /**
-     * The values selected, if the component which was interacted with was a select menu
+     * The raw values selected, if the component which was interacted with was a select menu
+     * Will contain snowflakes for user, role, and mentionable select menus
      * @type {string[]}
      */
     this.values = data.data.values ?? [];
+
+    /**
+     * The interaction resolved data
+     * @name CommandInteractionOptionResolver#resolved
+     * @type {Readonly<CommandInteractionResolvedData>}
+     */
+    Object.defineProperty(this, 'resolved', { value: Object.freeze(this.transformResolved(data.data.resolved)) });
   }
 }
 

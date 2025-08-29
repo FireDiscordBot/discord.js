@@ -81,6 +81,26 @@ class BaseMessageComponent {
         component = data instanceof MessageSelectMenu ? data : new MessageSelectMenu(data);
         break;
       }
+      case MessageComponentTypes.USER_SELECT: {
+        const UserSelectMenu = require('./UserSelectMenu');
+        component = data instanceof UserSelectMenu ? data : new UserSelectMenu(data);
+        break;
+      }
+      case MessageComponentTypes.ROLE_SELECT: {
+        const RoleSelectMenu = require('./RoleSelectMenu');
+        component = data instanceof RoleSelectMenu ? data : new RoleSelectMenu(data);
+        break;
+      }
+      case MessageComponentTypes.MENTIONABLE_SELECT: {
+        const MentionableSelectMenu = require('./MentionableSelectMenu');
+        component = data instanceof MentionableSelectMenu ? data : new MentionableSelectMenu(data);
+        break;
+      }
+      case MessageComponentTypes.CHANNEL_SELECT: {
+        const ChannelSelectMenu = require('./ChannelSelectMenu');
+        component = data instanceof ChannelSelectMenu ? data : new ChannelSelectMenu(data);
+        break;
+      }
       case MessageComponentTypes.TEXT_INPUT: {
         const TextInputComponent = require('./TextInputComponent');
         component = data instanceof TextInputComponent ? data : new TextInputComponent(data);

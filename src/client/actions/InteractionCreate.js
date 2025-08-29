@@ -46,6 +46,10 @@ class InteractionCreateAction extends Action {
             InteractionType = Structures.get('ButtonInteraction');
             break;
           case MessageComponentTypes.SELECT_MENU:
+          case MessageComponentTypes.USER_SELECT:
+          case MessageComponentTypes.ROLE_SELECT:
+          case MessageComponentTypes.MENTIONABLE_SELECT:
+          case MessageComponentTypes.CHANNEL_SELECT:
             InteractionType = Structures.get('SelectMenuInteraction');
             break;
           default:
