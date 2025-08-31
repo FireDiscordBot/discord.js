@@ -111,18 +111,6 @@ class BaseSelectMenu extends BaseMessageComponent {
   }
 
   /**
-   * Removes, replaces, and inserts options in the select menu.
-   * @param {number} index The index to start at
-   * @param {number} deleteCount The number of options to remove
-   * @param {...MessageSelectOptionData|MessageSelectOptionData[]} [options] The replacing option objects
-   * @returns {BaseSelectMenu}
-   */
-  spliceDefaultValues(index, deleteCount, ...options) {
-    this.options.splice(index, deleteCount, ...this.constructor.normalizeOptions(...options));
-    return this;
-  }
-
-  /**
    * Transforms the select menu into a plain object
    * @returns {APIStringSelectComponent} The raw data of this select menu
    */

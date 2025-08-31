@@ -67,7 +67,7 @@ class MessageSelectMenu extends BaseSelectMenu {
    * @returns {MessageSelectMenu}
    */
   setOptions(...options) {
-    this.spliceDefaultValues(0, this.options.length, options);
+    this.spliceOptions(0, this.options.length, options);
     return this;
   }
 
@@ -78,7 +78,7 @@ class MessageSelectMenu extends BaseSelectMenu {
    * @param {...MessageSelectOptionData|MessageSelectOptionData[]} [options] The replacing option objects
    * @returns {MessageSelectMenu}
    */
-  spliceDefaultValues(index, deleteCount, ...options) {
+  spliceOptions(index, deleteCount, ...options) {
     this.options.splice(index, deleteCount, ...this.constructor.normalizeOptions(...options));
     return this;
   }

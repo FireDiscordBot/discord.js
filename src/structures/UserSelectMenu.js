@@ -54,7 +54,7 @@ class UserSelectMenu extends BaseSelectMenu {
    * @returns {MessageSelectMenu}
    */
   setDefaultValues(...values) {
-    this.spliceDefaultValues(0, this.defaultValues.length, values);
+    this.spliceDefaultValues(0, this.defaultValues.length, ...values);
     return this;
   }
 
@@ -66,7 +66,7 @@ class UserSelectMenu extends BaseSelectMenu {
    * @returns {MessageSelectMenu}
    */
   spliceDefaultValues(index, deleteCount, ...values) {
-    this.defaultValues.splice(index, deleteCount, ...values);
+    this.defaultValues.splice(index, deleteCount, ...values.flat(Infinity));
     return this;
   }
 
