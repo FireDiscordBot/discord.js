@@ -1482,12 +1482,11 @@ export class Interaction<Cached extends CacheType = CacheType> extends Base {
   public isMessageComponent(): this is MessageComponentInteraction<Cached>;
   public isModalSubmit(): this is ModalSubmitInteraction<Cached>;
   public isSelectMenu(): this is SelectMenuInteraction<Cached>;
-  // TODO: see if we can differentiate the types
-  public isStringSelectMenu(): this is SelectMenuInteraction<Cached>;
-  public isUserSelectMenu(): this is SelectMenuInteraction<Cached>;
-  public isRoleSelectMenu(): this is SelectMenuInteraction<Cached>;
-  public isMentionableSelectMenu(): this is SelectMenuInteraction<Cached>;
-  public isChannelSelectMenu(): this is SelectMenuInteraction<Cached>;
+  public isStringSelectMenu(): this is SelectMenuInteraction<Cached, 'SELECT_MENU'>;
+  public isUserSelectMenu(): this is SelectMenuInteraction<Cached, 'USER_SELECT'>;
+  public isRoleSelectMenu(): this is SelectMenuInteraction<Cached, 'ROLE_SELECT'>;
+  public isMentionableSelectMenu(): this is SelectMenuInteraction<Cached, 'MENTIONABLE_SELECT'>;
+  public isChannelSelectMenu(): this is SelectMenuInteraction<Cached, 'CHANNEL_SELECT'>;
   public isRepliable(): this is this & InteractionResponseFields<Cached>;
   private transformResolved(
     resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],

@@ -290,7 +290,7 @@ class Interaction extends Base {
   isStringSelectMenu() {
     return (
       InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
-      (MessageComponentTypes[this.componentType] === MessageComponentTypes.MESSAGE_SELECT ||
+      (MessageComponentTypes[this.componentType] === MessageComponentTypes.SELECT_MENU ||
         MessageComponentTypes[this.componentType] === MessageComponentTypes.STRING_SELECT)
     );
   }
