@@ -27,9 +27,9 @@ class BaseMessageComponent {
    * Components that can be sent in a payload. These can be:
    * * MessageActionRow
    * * MessageButton
-   * * MessageSelectMenu
+   * * BaseSelectMenu
    * * TextInputComponent
-   * @typedef {MessageActionRow|MessageButton|MessageSelectMenu} MessageComponent
+   * @typedef {MessageActionRow|MessageButton|BaseSelectMenu} MessageComponent
    * @see {@link https://discord.com/developers/docs/interactions/message-components#component-object-component-types}
    */
 
@@ -104,6 +104,51 @@ class BaseMessageComponent {
       case MessageComponentTypes.TEXT_INPUT: {
         const TextInputComponent = require('./TextInputComponent');
         component = data instanceof TextInputComponent ? data : new TextInputComponent(data);
+        break;
+      }
+      case MessageComponentTypes.SECTION: {
+        const SectionComponent = require('./SectionComponent');
+        component = data instanceof SectionComponent ? data : new SectionComponent(data);
+        break;
+      }
+      case MessageComponentTypes.TEXT_DISPLAY: {
+        const TextDisplayComponent = require('./TextDisplayComponent');
+        component = data instanceof TextDisplayComponent ? data : new TextDisplayComponent(data);
+        break;
+      }
+      case MessageComponentTypes.THUMBNAIL: {
+        const ThumbnailComponent = require('./ThumbnailComponent');
+        component = data instanceof ThumbnailComponent ? data : new ThumbnailComponent(data);
+        break;
+      }
+      case MessageComponentTypes.MEDIA_GALLERY: {
+        const MediaGalleryComponent = require('./MediaGalleryComponent');
+        component = data instanceof MediaGalleryComponent ? data : new MediaGalleryComponent(data);
+        break;
+      }
+      case MessageComponentTypes.FILE: {
+        const FileComponent = require('./FileComponent');
+        component = data instanceof FileComponent ? data : new FileComponent(data);
+        break;
+      }
+      case MessageComponentTypes.SEPARATOR: {
+        const SeparatorComponent = require('./SeparatorComponent');
+        component = data instanceof SeparatorComponent ? data : new SeparatorComponent(data);
+        break;
+      }
+      case MessageComponentTypes.CONTAINER: {
+        const ContainerComponent = require('./ContainerComponent');
+        component = data instanceof ContainerComponent ? data : new ContainerComponent(data);
+        break;
+      }
+      case MessageComponentTypes.LABEL: {
+        const LabelComponent = require('./LabelComponent');
+        component = data instanceof LabelComponent ? data : new LabelComponent(data);
+        break;
+      }
+      case MessageComponentTypes.FILE_UPLOAD: {
+        const FileUploadComponent = require('./FileUploadComponent');
+        component = data instanceof FileUploadComponent ? data : new FileUploadComponent(data);
         break;
       }
       default:

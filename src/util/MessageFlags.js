@@ -35,6 +35,7 @@ class MessageFlags extends BitField {}
  * * `SUPPRESS_NOTIFICATIONS`
  * * `IS_VOICE_MESSAGE`
  * * `HAS_SNAPSHOT`
+ * * `IS_COMPONENTS_V2`
  * @type {Object}
  * @see {@link https://discord.com/developers/docs/resources/channel#message-object-message-flags}
  */
@@ -51,6 +52,7 @@ MessageFlags.FLAGS = {
   SUPPRESS_NOTIFICATIONS: 1 << 12,
   IS_VOICE_MESSAGE: 1 << 13,
   HAS_SNAPSHOT: 1 << 14,
+  IS_COMPONENTS_V2: 1 << 15,
 };
 
 module.exports = MessageFlags;

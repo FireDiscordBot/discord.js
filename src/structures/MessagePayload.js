@@ -2,6 +2,7 @@
 
 const { Buffer } = require('node:buffer');
 const BaseMessageComponent = require('./BaseMessageComponent');
+const BaseMessageComponentV2 = require('./BaseMessageComponentV2');
 const MessageEmbed = require('./MessageEmbed');
 const { RangeError } = require('../errors');
 const { MessageReferenceType } = require('../util/Constants');
@@ -139,17 +140,6 @@ class MessagePayload {
       }
     }
 
-    const components = this.options.components?.map(c => BaseMessageComponent.create(c).toJSON());
-
-    let username;
-    let avatarURL;
-    let threadName;
-    if (isWebhook) {
-      username = this.options.username ?? this.target.name;
-      if (this.options.avatarURL) avatarURL = this.options.avatarURL;
-      if (this.options.threadName) threadName = this.options.threadName;
-    }
-
     let flags;
     if (
       typeof this.options.flags !== 'undefined' ||
@@ -162,6 +152,21 @@ class MessagePayload {
 
     if (isInteraction && this.options.ephemeral) {
       flags |= MessageFlags.FLAGS.EPHEMERAL;
+    }
+
+    const components = this.options.components?.map(c => {
+      const instance = BaseMessageComponent.create(c);
+      if (instance instanceof BaseMessageComponentV2) flags |= MessageFlags.FLAGS.IS_COMPONENTS_V2;
+      return instance.toJSON();
+    });
+
+    let username;
+    let avatarURL;
+    let threadName;
+    if (isWebhook) {
+      username = this.options.username ?? this.target.name;
+      if (this.options.avatarURL) avatarURL = this.options.avatarURL;
+      if (this.options.threadName) threadName = this.options.threadName;
     }
 
     let allowedMentions =

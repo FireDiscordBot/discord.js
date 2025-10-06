@@ -70,6 +70,8 @@ const Messages = {
 
   FILE_NOT_FOUND: file => `File could not be found: ${file}`,
 
+  FILE_UPLOAD_CUSTOM_ID: 'FileUploadComponent customId must be a string',
+
   USER_BANNER_NOT_FETCHED: "You must fetch this user's banner before trying to generate its URL!",
   USER_NO_DM_CHANNEL: 'No DM Channel exists!',
 
@@ -162,6 +164,10 @@ const Messages = {
   MODAL_SUBMIT_INTERACTION_FIELD_NOT_FOUND: customId => `Required field with custom id "${customId}" not found.`,
   MODAL_SUBMIT_INTERACTION_FIELD_TYPE: (customId, type, expected) =>
     `Field with custom id "${customId}" is of type: ${type}; expected ${expected}.`,
+  MODAL_SUBMIT_INTERACTION_FIELD_EMPTY: (customId, type) =>
+    `Required field with custom id "${customId}" is of type: ${type}; expected a non-empty value.`,
+  MODAL_SUBMIT_INTERACTION_FIELD_INVALID_CHANNEL_TYPE: (customId, type, expected) =>
+    `The type of channel of the field with custom id "${customId}" is: ${type}; expected ${expected}.`,
 
   INVITE_MISSING_SCOPES: 'At least one valid scope must be provided for the invite',
 

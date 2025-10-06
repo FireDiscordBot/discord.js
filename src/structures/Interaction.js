@@ -350,9 +350,18 @@ class Interaction extends Base {
   }
 
   /**
+   * Represents the resolved data of a received command interaction.
+   * @typedef {object} InteractionResolvedData
+   * @property {Collection<Snowflake, User>} [users] The resolved users
+   * @property {Collection<Snowflake, GuildMember|APIGuildMember>} [members] The resolved guild members
+   * @property {Collection<Snowflake, Role|APIRole>} [roles] The resolved roles
+   * @property {Collection<Snowflake, Channel|APIChannel>} [channels] The resolved channels
+   */
+
+  /**
    * Transforms the resolved received from the API.
    * @param {APIInteractionDataResolved} resolved The received resolved objects
-   * @returns {CommandInteractionResolvedData}
+   * @returns {InteractionResolvedData}
    * @private
    */
   transformResolved({ members, users, channels, roles, messages, attachments } = {}) {

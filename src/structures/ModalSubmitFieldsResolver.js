@@ -1,5 +1,6 @@
 'use strict';
 
+const { default: Collection } = require('@discordjs/collection');
 const { TypeError } = require('../errors');
 const { MessageComponentTypes } = require('../util/Constants');
 
@@ -7,32 +8,81 @@ const { MessageComponentTypes } = require('../util/Constants');
  * A resolver for modal submit interaction text inputs.
  */
 class ModalSubmitFieldsResolver {
-  constructor(components) {
+  constructor(components, resolved) {
     /**
      * The components within the modal
-     * @type {PartialModalActionRow[]} The components in the modal
+     *
+     * @type {Array<ActionRowModalData | LabelModalData>}
      */
     this.components = components;
-  }
 
-  /**
-   * The extracted fields from the modal
-   * @type {PartialInputTextData[]} The fields in the modal
-   * @private
-   */
-  get _fields() {
-    return this.components.reduce((previous, next) => previous.concat(next.components), []);
+    /**
+     * The modal resolved data
+     * @type {Readonly<InteractionResolvedData>}
+     */
+    Object.defineProperty(this, 'resolved', { value: Object.freeze(resolved) });
+
+    /**
+     * The extracted fields from the modal
+     *
+     * @type {Collection<string, ModalData>}
+     */
+    this.fields = components.reduce((accumulator, next) => {
+      // NOTE: for legacy support of action rows in modals, which has `components`
+      if ('components' in next) {
+        for (const component of next.components) accumulator.set(component.customId, component);
+      }
+
+      // For label component
+      if ('component' in next) {
+        accumulator.set(next.component.customId, next.component);
+      }
+
+      return accumulator;
+    }, new Collection());
   }
 
   /**
    * Gets a field given a custom id from a component
    * @param {string} customId The custom id of the component
-   * @returns {?PartialInputTextData}
+   * @param {MessageComponentType} [type] The type of the component
+   * @returns {ModalData}
    */
-  getField(customId) {
-    const field = this._fields.find(f => f.customId === customId);
+  getField(customId, type) {
+    const field = this.fields.get(customId);
     if (!field) throw new TypeError('MODAL_SUBMIT_INTERACTION_FIELD_NOT_FOUND', customId);
+
+    if (type !== undefined && type !== field.type) {
+      throw new TypeError('MODAL_SUBMIT_INTERACTION_FIELD_TYPE', customId, field.type, type);
+    }
+
     return field;
+  }
+
+  /**
+   * Gets a component by custom id and property and checks its type.
+   *
+   * @param {string} customId The custom id of the component.
+   * @param {MessageComponentType[]} allowedTypes The allowed types of the component.
+   * @param {string[]} properties The properties to check for for `required`.
+   * @param {boolean} required Whether to throw an error if the component value(s) are not found.
+   * @returns {ModalData} The option, if found.
+   * @private
+   */
+  _getTypedComponent(customId, allowedTypes, properties, required) {
+    const component = this.getField(customId);
+    if (!allowedTypes.includes(component.type)) {
+      throw new TypeError(
+        'MODAL_SUBMIT_INTERACTION_FIELD_NOT_FOUND',
+        customId,
+        component.type,
+        allowedTypes.join(', '),
+      );
+    } else if (required && properties.every(prop => component[prop] === null || component[prop] === undefined)) {
+      throw new TypeError('MODAL_SUBMIT_INTERACTION_FIELD_EMPTY', customId, component.type);
+    }
+
+    return component;
   }
 
   /**
@@ -41,12 +91,139 @@ class ModalSubmitFieldsResolver {
    * @returns {?string}
    */
   getTextInputValue(customId) {
-    const field = this.getField(customId);
-    const expectedType = MessageComponentTypes[MessageComponentTypes.TEXT_INPUT];
-    if (field.type !== expectedType) {
-      throw new TypeError('MODAL_SUBMIT_INTERACTION_FIELD_TYPE', customId, field.type, expectedType);
+    return this._getTypedComponent(customId, [MessageComponentTypes.TEXT_INPUT]).value;
+  }
+
+  /**
+   * Gets the values of a string select component given a custom id
+   *
+   * @param {string} customId The custom id of the string select component
+   * @returns {string[]}
+   */
+  getStringSelectValues(customId) {
+    return this._getTypedComponent(customId, [MessageComponentTypes.SELECT_MENU]).values;
+  }
+
+  /**
+   * Gets users component
+   *
+   * @param {string} customId The custom id of the component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {?Collection<Snowflake, User>} The selected users, or null if none were selected and not required
+   */
+  getSelectedUsers(customId, required = false) {
+    const component = this._getTypedComponent(
+      customId,
+      [MessageComponentTypes.USER_SELECT, MessageComponentTypes.MENTIONABLE_SELECT],
+      ['users'],
+      required,
+    );
+    return component.users ?? null;
+  }
+
+  /**
+   * Gets roles component
+   *
+   * @param {string} customId The custom id of the component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {?Collection<Snowflake, Role | APIRole>} The selected roles,
+   * or null if none were selected and not required
+   */
+  getSelectedRoles(customId, required = false) {
+    const component = this._getTypedComponent(
+      customId,
+      [MessageComponentTypes.ROLE_SELECT, MessageComponentTypes.MENTIONABLE_SELECT],
+      ['roles'],
+      required,
+    );
+    return component.roles ?? null;
+  }
+
+  /**
+   * Gets channels component
+   *
+   * @param {string} customId The custom id of the component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @param {ChannelType[]} [channelTypes=[]] The allowed types of channels. If empty, all channel types are allowed.
+   * @returns {?Collection<Snowflake, GuildChannel|ThreadChannel|APIChannel>} The selected channels,
+   * or null if none were selected and not required
+   */
+  getSelectedChannels(customId, required = false, channelTypes = []) {
+    const component = this._getTypedComponent(customId, [MessageComponentTypes.CHANNEL_SELECT], ['channels'], required);
+    const channels = component.channels;
+    if (channels && channelTypes.length > 0) {
+      for (const channel of channels.values()) {
+        if (!channelTypes.includes(channel.type)) {
+          throw new TypeError(
+            'MODAL_SUBMIT_INTERACTION_FIELD_INVALID_CHANNEL_TYPE',
+            customId,
+            channel.type,
+            channelTypes.join(', '),
+          );
+        }
+      }
     }
-    return field.value;
+
+    return channels ?? null;
+  }
+
+  /**
+   * Gets members component
+   *
+   * @param {string} customId The custom id of the component
+   * @returns {?Collection<Snowflake, GuildMember | APIGuildMember>} The selected members,
+   * or null if none were selected or the users were not present in the guild
+   */
+  getSelectedMembers(customId) {
+    const component = this._getTypedComponent(
+      customId,
+      [MessageComponentTypes.USER_SELECT, MessageComponentTypes.MENTIONABLE_SELECT],
+      ['members'],
+      false,
+    );
+    return component.members ?? null;
+  }
+
+  /**
+   * Gets mentionables component
+   *
+   * @param {string} customId The custom id of the component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {?{users: Collection<Snowflake, User>, members: Collection<Snowflake, GuildMember | APIGuildMember>,
+   * roles: Collection<Snowflake, Role | APIRole>}} The selected mentionables,
+   * or null if none were selected and not required
+   */
+  getSelectedMentionables(customId, required = false) {
+    const component = this._getTypedComponent(
+      customId,
+      [MessageComponentTypes.MENTIONABLE_SELECT],
+      ['users', 'members', 'roles'],
+      required,
+    );
+
+    if (component.users || component.members || component.roles) {
+      return {
+        users: component.users ?? new Collection(),
+        members: component.members ?? new Collection(),
+        roles: component.roles ?? new Collection(),
+      };
+    }
+
+    return null;
+  }
+
+  /**
+   * Gets file upload component
+   *
+   * @param {string} customId The custom id of the component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {?Collection<Snowflake, MessageAttachment>} The uploaded files.
+   * or null if none were selected and not required
+   */
+  getUploadedFiles(customId, required = false) {
+    const component = this._getTypedComponent(customId, [MessageComponentTypes.FILE_UPLOAD], ['attachments'], required);
+
+    return component.attachments ?? null;
   }
 }
 

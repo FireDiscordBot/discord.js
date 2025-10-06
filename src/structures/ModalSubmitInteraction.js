@@ -1,10 +1,57 @@
 'use strict';
 
+const { default: Collection } = require('@discordjs/collection');
 const Interaction = require('./Interaction');
 const InteractionWebhook = require('./InteractionWebhook');
+const MessageAttachment = require('./MessageAttachment');
 const ModalSubmitFieldsResolver = require('./ModalSubmitFieldsResolver');
 const InteractionResponses = require('./interfaces/InteractionResponses');
-const { MessageComponentTypes } = require('../util/Constants');
+
+/**
+ * @typedef {Object} BaseModalData
+ * @property {ComponentType} type The component type of the field
+ * @property {number} id The id of the field
+ */
+
+/**
+ * @typedef {BaseModalData} TextInputModalData
+ * @property {string} customId The custom id of the field
+ * @property {string} value The value of the field
+ */
+
+/**
+ * @typedef {BaseModalData} SelectMenuModalData
+ * @property {string} customId The custom id of the field
+ * @property {string[]} values The values of the field
+ * @property {Collection<string, GuildMember | APIGuildMember>} [members] The resolved members
+ * @property {Collection<string, User | APIUser>} [users] The resolved users
+ * @property {Collection<string, Role | APIRole>} [roles] The resolved roles
+ * @property {Collection<string, BaseChannel | APIChannel>} [channels] The resolved channels
+ */
+
+/**
+ * @typedef {BaseModalData} TextDisplayModalData
+ */
+
+/**
+ * @typedef {BaseModalData} FileUploadModalData
+ * @property {string} customId
+ * @property {Collection<string, MessageAttachment>} [attachments] The resolved attachments
+ */
+
+/**
+ * @typedef {TextInputModalData | StringSelectModalData | FileUploadModalData} ModalData
+ */
+
+/**
+ * @typedef {BaseModalData} LabelModalData
+ * @property {ModalData} component The component within the label
+ */
+
+/**
+ * @typedef {BaseModalData} ActionRowModalData
+ * @property {TextInputModalData[]} components The components of this action row
+ */
 
 /**
  * Represents a modal submit interaction.
@@ -22,27 +69,13 @@ class ModalSubmitInteraction extends Interaction {
     this.customId = data.data.custom_id;
 
     /**
-     * @typedef {Object} PartialTextInputData
-     * @property {string} [customId] A unique string to be sent in the interaction when submitted
-     * @property {MessageComponentType} [type] The type of this component
-     * @property {string} [value] Value of this text input component
+     * The components within the modal
+     *
+     * @type {Array<ActionRowModalData | LabelModalData | TextDisplayModalData>}
      */
-
-    /**
-     * @typedef {Object} PartialModalActionRow
-     * @property {MessageComponentType} [type] The type of this component
-     * @property {PartialTextInputData[]} [components] Partial text input components
-     */
-
-    /**
-     * The inputs within the modal
-     * @type {PartialModalActionRow[]}
-     */
-    this.components =
-      data.data.components?.map(c => ({
-        type: MessageComponentTypes[c.type],
-        components: ModalSubmitInteraction.transformComponent(c),
-      })) ?? [];
+    this.components = data.data.components?.map(component =>
+      ModalSubmitInteraction.transformComponent(component, data.data.resolved),
+    );
 
     /**
      * The message associated with this interaction
@@ -54,7 +87,7 @@ class ModalSubmitInteraction extends Interaction {
      * The fields within the modal
      * @type {ModalSubmitFieldsResolver}
      */
-    this.fields = new ModalSubmitFieldsResolver(this.components);
+    this.fields = new ModalSubmitFieldsResolver(this.components, this.transformResolved(data.data.resolved));
 
     /**
      * Whether the reply to this interaction has been deferred
@@ -83,15 +116,77 @@ class ModalSubmitInteraction extends Interaction {
 
   /**
    * Transforms component data to discord.js-compatible data
+   *
    * @param {*} rawComponent The data to transform
-   * @returns {PartialTextInputData[]}
+   * @param {APIInteractionDataResolved} [resolved] The resolved data for the interaction
+   * @returns {ModalData[]}
+   * @private
    */
-  static transformComponent(rawComponent) {
-    return rawComponent.components.map(c => ({
-      value: c.value,
-      type: MessageComponentTypes[c.type],
-      customId: c.custom_id,
-    }));
+  static transformComponent(rawComponent, resolved) {
+    if ('components' in rawComponent) {
+      return {
+        type: rawComponent.type,
+        id: rawComponent.id,
+        components: rawComponent.components.map(component => this.transformComponent(component, resolved)),
+      };
+    }
+
+    if ('component' in rawComponent) {
+      return {
+        type: rawComponent.type,
+        id: rawComponent.id,
+        component: this.transformComponent(rawComponent.component, resolved),
+      };
+    }
+
+    const data = {
+      type: rawComponent.type,
+      id: rawComponent.id,
+    };
+
+    // NOTE: text display do not have custom IDs
+    if (rawComponent.custom_id) data.customId = rawComponent.custom_id;
+
+    if (rawComponent.value) data.value = rawComponent.value;
+
+    if (rawComponent.values) {
+      data.values = rawComponent.values;
+      if (resolved) {
+        const resolveCollection = (resolvedData, resolver) => {
+          const collection = new Collection();
+          for (const value of data.values) {
+            if (resolvedData?.[value]) {
+              collection.set(value, resolver(resolvedData[value]));
+            }
+          }
+
+          return collection.size ? collection : null;
+        };
+
+        const users = resolveCollection(resolved.users, user => this.client.users._add(user));
+        if (users) data.users = users;
+
+        const channels = resolveCollection(
+          resolved.channels,
+          channel => this.client.channels._add(channel, this.guild) ?? channel,
+        );
+        if (channels) data.channels = channels;
+
+        const members = resolveCollection(resolved.members, member => this.guild?.members._add(member) ?? member);
+        if (members) data.members = members;
+
+        const roles = resolveCollection(resolved.roles, role => this.guild?.roles._add(role) ?? role);
+        if (roles) data.roles = roles;
+
+        const attachments = resolveCollection(
+          resolved.attachments,
+          attachment => new MessageAttachment(attachment.url, attachment.filename, attachment),
+        );
+        if (attachments) data.attachments = attachments;
+      }
+    }
+
+    return data;
   }
 
   /**

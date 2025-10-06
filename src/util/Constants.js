@@ -1421,6 +1421,8 @@ exports.InteractionResponseTypes = createEnum([
  * * FILE
  * * SEPARATOR
  * * CONTAINER
+ * * LABEL
+ * * FILE_UPLOAD
  * @typedef {string} MessageComponentType
  * @see {@link https://discord.com/developers/docs/interactions/message-components#component-object-component-types}
  */
@@ -1443,6 +1445,8 @@ exports.MessageComponentTypes = createEnum([
   null,
   null,
   'CONTAINER',
+  'LABEL',
+  'FILE_UPLOAD',
 ]);
 
 /**
@@ -1456,6 +1460,15 @@ exports.MessageComponentTypes = createEnum([
  * @see {@link https://discord.com/developers/docs/interactions/message-components#button-object-button-styles}
  */
 exports.MessageButtonStyles = createEnum([null, 'PRIMARY', 'SECONDARY', 'SUCCESS', 'DANGER', 'LINK']);
+
+/**
+ * The spacing of a separator component
+ * * SMALL
+ * * LARGE
+ * @typedef {string} SeparatorSpacingValue
+ * @see {@link }
+ */
+exports.SeparatorSpacing = createEnum([null, 'SMALL', 'LARGE']);
 
 /**
  * The type of message reference
@@ -1635,6 +1648,7 @@ function createEnum(keys) {
  * @property {number} MaxBulkDeletableMessageAge Max bulk deletable message age
  * @property {Object<MembershipState, number>} MembershipStates The value set for a team members membership state.
  * @property {Object<MessageButtonStyle, number>} MessageButtonStyles The style of a message button.
+ * @property {Object<SeparatorSpacingValue, number>} SeparatorSpacing The spacing of a separator component.
  * @property {Object<MessageComponentType, number>} MessageComponentTypes The type of a message component.
  * @property {MessageType[]} MessageTypes The type of a {@link Message} object.
  * @property {Object<MFALevel, number>} MFALevels The required MFA level for a guild.

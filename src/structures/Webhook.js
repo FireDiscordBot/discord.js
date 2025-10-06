@@ -197,7 +197,7 @@ class Webhook {
     const d = await this.client.api.webhooks(this.id, this.token).post({
       data,
       files,
-      query: { thread_id: messagePayload.options.threadId, wait: true },
+      query: { thread_id: messagePayload.options.threadId, wait: true, with_components: true },
       auth: false,
     });
     return this.client.channels?.cache.get(d.channel_id)?.messages._add(d, false) ?? d;
@@ -225,7 +225,7 @@ class Webhook {
     if (!this.token) throw new Error('WEBHOOK_TOKEN_UNAVAILABLE');
 
     const data = await this.client.api.webhooks(this.id, this.token).slack.post({
-      query: { wait: true },
+      query: { wait: true, with_components: true },
       auth: false,
       data: body,
     });
@@ -333,6 +333,7 @@ class Webhook {
         files,
         query: {
           thread_id: messagePayload.options.threadId,
+          with_components: true,
         },
         auth: false,
       });

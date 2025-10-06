@@ -1,6 +1,6 @@
 {
   "name": "discord.js",
-  "version": "13.17.2-fire",
+  "version": "13.18-fire",
   "description": "A powerful library for interacting with the Discord API",
   "scripts": {
     "test": "npm run lint && npm run docs:test && npm run lint:typings && npm run test:typescript",
@@ -56,7 +56,7 @@
     "@sapphire/async-queue": "^1.5.0",
     "@types/node-fetch": "^2.6.3",
     "@types/ws": "^8.5.4",
-    "discord-api-types": "^0.37.119",
+    "discord-api-types": "^0.38.24",
     "form-data": "^4.0.0",
     "node-fetch": "^2.6.7",
     "ws": "^8.13.0"

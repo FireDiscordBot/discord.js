@@ -30,17 +30,24 @@ import {
   APIButtonComponent,
   APIChannelSelectComponent,
   APIChatInputApplicationCommandInteractionData,
+  APIComponentInContainer,
+  APIComponentInLabel,
+  APIComponentInMessageActionRow,
+  APIComponentInModalActionRow,
+  APIContainerComponent,
   APIContextMenuInteractionData,
   APIEmbed,
   APIEmoji,
+  APIFileComponent,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
   APIInteractionGuildMember,
+  APILabelComponent,
+  APIMediaGalleryComponent,
+  APIMediaGalleryItem,
   APIMentionableSelectComponent,
   APIMessage,
-  APIMessageActionRowComponent,
   APIMessageComponent,
-  APIModalActionRowComponent,
   APIOverwrite,
   APIPartialChannel,
   APIPartialEmoji,
@@ -49,8 +56,13 @@ import {
   APIPollAnswer,
   APIRole,
   APIRoleSelectComponent,
+  APISectionAccessoryComponent,
+  APISectionComponent,
   APISelectMenuComponent,
+  APISeparatorComponent,
   APITemplateSerializedSourceGuild,
+  APITextDisplayComponent,
+  APIThumbnailComponent,
   APIUser,
   APIUserSelectComponent,
   GatewayVoiceServerUpdateDispatchData,
@@ -99,6 +111,7 @@ import {
   OverwriteTypes,
   PremiumTiers,
   PrivacyLevels,
+  SeparatorComponentSpacing,
   SortOrderType,
   StickerFormatTypes,
   StickerTypes,
@@ -512,6 +525,8 @@ export class BaseMessageComponent {
   private static resolveType(type: MessageComponentTypeResolvable): MessageComponentType;
 }
 
+export class BaseMessageComponentV2 extends BaseMessageComponent {}
+
 export class BitField<S extends string, N extends number | bigint = number> {
   public constructor(bits?: BitFieldResolvable<S, N>);
   public bitfield: N;
@@ -846,10 +861,10 @@ export class AutocompleteInteraction<Cached extends CacheType = CacheType> exten
 }
 
 export class CommandInteractionOptionResolver<Cached extends CacheType = CacheType> {
-  public constructor(client: Client, options: CommandInteractionOption[], resolved: CommandInteractionResolvedData);
+  public constructor(client: Client, options: CommandInteractionOption[], resolved: InteractionResolvedData);
   public readonly client: Client;
   public readonly data: readonly CommandInteractionOption<Cached>[];
-  public readonly resolved: Readonly<CommandInteractionResolvedData<Cached>>;
+  public readonly resolved: Readonly<InteractionResolvedData<Cached>>;
   private _group: string | null;
   private _hoistedOptions: CommandInteractionOption<Cached>[];
   private _subcommand: string | null;
@@ -1490,7 +1505,7 @@ export class Interaction<Cached extends CacheType = CacheType> extends Base {
   public isRepliable(): this is this & InteractionResponseFields<Cached>;
   private transformResolved(
     resolved: (APIChatInputApplicationCommandInteractionData | APIContextMenuInteractionData)['resolved'],
-  ): CommandInteractionResolvedData<Cached>;
+  ): InteractionResolvedData<Cached>;
 }
 
 export class InteractionCollector<T extends Interaction> extends Collector<Snowflake, T> {
@@ -1630,7 +1645,8 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
     ROLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'ROLE_SELECT'>;
     MENTIONABLE_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'MENTIONABLE_SELECT'>;
     CHANNEL_SELECT: SelectMenuInteraction<WrapBooleanCache<Cached>, 'CHANNEL_SELECT'>;
-    // TODO: implement these lol
+
+    // these aren't interactive but must be here to make typescript happy
     SECTION: never;
     TEXT_DISPLAY: never;
     THUMBNAIL: never;
@@ -1638,8 +1654,31 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
     FILE: never;
     SEPARATOR: never;
     CONTAINER: never;
+    LABEL: never;
+    FILE_UPLOAD: never;
   }
 >;
+
+export type TopLevelMessageComponents =
+  | MessageActionRow
+  | TextDisplayComponent
+  | SectionComponent
+  | MediaGalleryComponent
+  | FileComponent
+  | SeparatorComponent
+  | ContainerComponent;
+
+export type TopLevelMessageComponentOptions =
+  | Required<BaseMessageComponentOptions>
+  | (
+      | MessageActionRowOptions
+      | TextDisplayComponentOptions
+      | SectionComponentOptions
+      | MediaGalleryComponentOptions
+      | FileComponentOptions
+      | SeparatorComponentOptions
+      | ContainerComponentOptions
+    );
 
 export class Message<Cached extends boolean = boolean> extends Base {
   private readonly _cacheType: Cached;
@@ -1654,7 +1693,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public readonly channel: If<Cached, GuildTextBasedChannel, TextBasedChannel>;
   public channelId: Snowflake;
   public readonly cleanContent: string;
-  public components: MessageActionRow[];
+  public components: TopLevelMessageComponents[];
   public content: string;
   public readonly createdAt: Date;
   public createdTimestamp: number;
@@ -1724,8 +1763,8 @@ export class MessageActionRow<
   T extends MessageActionRowComponent | ModalActionRowComponent = MessageActionRowComponent,
   U = T extends ModalActionRowComponent ? ModalActionRowComponentResolvable : MessageActionRowComponentResolvable,
   V = T extends ModalActionRowComponent
-    ? APIActionRowComponent<APIModalActionRowComponent>
-    : APIActionRowComponent<APIMessageActionRowComponent>,
+    ? APIActionRowComponent<APIComponentInModalActionRow>
+    : APIActionRowComponent<APIComponentInMessageActionRow>,
 > extends BaseMessageComponent {
   // tslint:disable-next-line:ban-ts-ignore
   // @ts-ignore (TS:2344, Caused by TypeScript 4.8)
@@ -1737,6 +1776,75 @@ export class MessageActionRow<
   public setComponents(...components: U[] | U[][]): this;
   public spliceComponents(index: number, deleteCount: number, ...components: U[] | U[][]): this;
   public toJSON(): V;
+}
+
+export class SectionComponent extends BaseMessageComponentV2 {
+  public constructor(data?: SectionComponent | SectionComponentOptions | APISectionComponent);
+  public type: 'SECTION';
+  public id?: number;
+  public components: SectionChildComponents[];
+  public setId(id: number): this;
+  public addComponents(...components: SectionChildComponentResolvable[] | SectionChildComponentResolvable[][]): this;
+  public setComponents(...components: SectionChildComponentResolvable[] | SectionChildComponentResolvable[][]): this;
+  public spliceComponents(
+    index: number,
+    deleteCount: number,
+    ...components: SectionChildComponentResolvable[] | SectionChildComponentResolvable[][]
+  ): this;
+  public accessory?: SectionAccessoryComponents;
+  public setAccessory(accessory: SectionAccessoryComponentResolvable): this;
+  public toJSON(): APISectionComponent;
+}
+
+export class ContainerComponent extends BaseMessageComponentV2 {
+  public constructor(data?: ContainerComponent | ContainerComponentOptions | APIContainerComponent);
+  public type: 'CONTAINER';
+  public id?: number;
+  public components: ContainerChildComponents[];
+  public color: number | null;
+  public readonly hexColor: HexColorString | null;
+  public spoiler: boolean;
+  public setId(id: number): this;
+  public addComponents(
+    ...components: ContainerChildComponentResolvable[] | ContainerChildComponentResolvable[][]
+  ): this;
+  public setComponents(
+    ...components: ContainerChildComponentResolvable[] | ContainerChildComponentResolvable[][]
+  ): this;
+  public spliceComponents(
+    index: number,
+    deleteCount: number,
+    ...components: ContainerChildComponentResolvable[] | ContainerChildComponentResolvable[][]
+  ): this;
+  public setColor(color: ColorResolvable): this;
+  public setSpoiler(spoilered?: boolean): this;
+  public toJSON(): APIContainerComponent;
+}
+
+export class LabelComponent extends BaseMessageComponentV2 {
+  public constructor(data?: LabelComponent | LabelComponentOptions | APILabelComponent);
+  public type: 'LABEL';
+  public id?: number;
+  public label: string;
+  public description: string;
+  public component: LabelChildComponents;
+  public setLabel(label: string): this;
+  public setDescription(description: string): this;
+  public setComponent(component: LabelChildComponentResolvable): this;
+  public setId(id: number): this;
+  public toJSON(): APILabelComponent;
+}
+
+export class SeparatorComponent extends BaseMessageComponentV2 {
+  public constructor(data?: SeparatorComponent | SeparatorComponentOptions | APISeparatorComponent);
+  public type: 'SEPARATOR';
+  public id?: number;
+  public divider: boolean;
+  public spacing: SeparatorSpacingValue;
+  public setId(id: number): this;
+  public displayDivider(display: boolean): this;
+  public setSpacing(spacing: SeparatorSpacingValueResolvable): this;
+  public toJSON(): APISeparatorComponent;
 }
 
 export class MessageAttachment {
@@ -1770,6 +1878,62 @@ export class AttachmentFlags extends BitField<AttachmentFlagsString> {
 }
 
 export type AttachmentFlagsString = 'IS_REMIX';
+
+export interface FileComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  file: UnfurledMediaItem;
+  spoiler: boolean;
+  name?: string;
+  size?: number;
+}
+
+export class FileComponent extends BaseMessageComponentV2 {
+  public constructor(data?: FileComponent | FileComponentOptions);
+  public type: 'FILE';
+  public id?: number;
+  public file: UnfurledMediaItem;
+  public spoiler: boolean;
+  public name?: string;
+  public size?: number;
+  public setId(id: number): this;
+  public setFile(name: string): this;
+  public setSpoiler(spoilered?: boolean): this;
+  public toJSON(): APIFileComponent;
+}
+
+// TODO: remove when discord-api-types has it
+type APIFileUploadComponent = {
+  type: MessageComponentTypes.FILE_UPLOAD; // 19
+  id?: number;
+  custom_id: string;
+  min_values?: number; // 0-10
+  max_values?: number; // 1-10
+  required?: boolean;
+};
+
+export interface FileUploadComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  customId: string;
+  minValues?: number;
+  maxValues?: number;
+  required?: boolean;
+}
+
+export class FileUploadComponent extends BaseMessageComponentV2 {
+  public constructor(data?: FileUploadComponent | FileUploadComponentOptions | APIFileUploadComponent);
+  public customId: string | null;
+  public required: boolean;
+  public maxValues: number | null;
+  public minValues: number | null;
+  public id?: number;
+  public type: 'FILE_UPLOAD';
+  public setCustomId(customId: string): this;
+  public setId(id: number): this;
+  public setRequired(required?: boolean): this;
+  public setMaxValues(maxValues: number): this;
+  public setMinValues(minValues: number): this;
+  public toJSON(): APIFileUploadComponent;
+}
 
 export class MessageButton extends BaseMessageComponent {
   public constructor(data?: MessageButton | MessageButtonOptions | APIButtonComponent);
@@ -1809,9 +1973,9 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public readonly component: CacheTypeReducer<
     Cached,
     MessageActionRowComponent,
-    Exclude<APIMessageComponent, APIActionRowComponent<APIMessageActionRowComponent>>,
-    MessageActionRowComponent | Exclude<APIMessageComponent, APIActionRowComponent<APIMessageActionRowComponent>>,
-    MessageActionRowComponent | Exclude<APIMessageComponent, APIActionRowComponent<APIMessageActionRowComponent>>
+    Exclude<APIMessageComponent, APIActionRowComponent<APIComponentInMessageActionRow>>,
+    MessageActionRowComponent | Exclude<APIMessageComponent, APIActionRowComponent<APIComponentInMessageActionRow>>,
+    MessageActionRowComponent | Exclude<APIMessageComponent, APIActionRowComponent<APIComponentInMessageActionRow>>
   >;
   public componentType: Exclude<MessageComponentType, 'ACTION_ROW'>;
   public customId: string;
@@ -1899,9 +2063,9 @@ export class MessageEmbed {
   public static normalizeFields(...fields: EmbedFieldData[] | EmbedFieldData[][]): Required<EmbedFieldData>[];
 }
 
-export class MessageFlags extends BitField<MessageFlagsString> {
-  public static FLAGS: Record<MessageFlagsString, number>;
-  public static resolve(bit?: BitFieldResolvable<MessageFlagsString, number>): number;
+export class MessageFlags extends BitField<MessageFlagsString | 'IS_COMPONENTS_V2'> {
+  public static FLAGS: Record<MessageFlagsString | 'IS_COMPONENTS_V2', number>;
+  public static resolve(bit?: BitFieldResolvable<MessageFlagsString | 'IS_COMPONENTS_V2', number>): number;
 }
 
 export class MessageMentions {
@@ -1976,6 +2140,33 @@ export class MessageReaction {
   public remove(): Promise<MessageReaction>;
   public fetch(): Promise<MessageReaction>;
   public toJSON(): unknown;
+}
+
+export class MediaGalleryItem {
+  public constructor(data?: MediaGalleryItemOptions);
+  public media: UnfurledMediaItem;
+  public description?: string;
+  public spoiler?: boolean;
+  public setMedia(url: string): this;
+  public setDescription(description: string): this;
+  public setSpoiler(spoiler?: boolean): this;
+  public toJSON(): APIMediaGalleryItem;
+}
+
+export class MediaGalleryComponent extends BaseMessageComponentV2 {
+  public constructor(data?: MediaGalleryComponent | MediaGalleryComponentOptions | APIMediaGalleryComponent);
+  public type: 'MEDIA_GALLERY';
+  public id?: number;
+  public items: MediaGalleryItem[];
+  public setId(id: number): this;
+  public addItems(...items: MediaGalleryItemResolvable[] | MediaGalleryItemResolvable[][]): this;
+  public setComponents(...items: MediaGalleryItemResolvable[] | MediaGalleryItemResolvable[][]): this;
+  public spliceComponents(
+    index: number,
+    deleteCount: number,
+    ...items: MediaGalleryItemResolvable[] | MediaGalleryItemResolvable[][]
+  ): this;
+  public toJSON(): APIMediaGalleryComponent;
 }
 
 export class BaseSelectMenu extends BaseMessageComponent {
@@ -2067,19 +2258,27 @@ export class ChannelSelectMenu extends BaseSelectMenu {
 
 export class Modal {
   public constructor(data?: Modal | ModalOptions);
-  public components: MessageActionRow<ModalActionRowComponent>[];
+  public components: (MessageActionRow<ModalActionRowComponent> | LabelComponent)[];
   public customId: string | null;
   public title: string | null;
   public addComponents(
     ...components: (
       | MessageActionRow<ModalActionRowComponent>
+      | LabelComponent
+      | TextDisplayComponent
       | (Required<BaseMessageComponentOptions> & MessageActionRowOptions<ModalActionRowComponentResolvable>)
+      | (Required<BaseMessageComponentOptions> & LabelComponentOptions)
+      | (Required<BaseMessageComponentOptions> & TextDisplayComponentOptions)
     )[]
   ): this;
   public setComponents(
     ...components: (
       | MessageActionRow<ModalActionRowComponent>
+      | LabelComponent
+      | TextDisplayComponent
       | (Required<BaseMessageComponentOptions> & MessageActionRowOptions<ModalActionRowComponentResolvable>)
+      | (Required<BaseMessageComponentOptions> & LabelComponentOptions)
+      | (Required<BaseMessageComponentOptions> & TextDisplayComponentOptions)
     )[]
   ): this;
   public setCustomId(customId: string): this;
@@ -2088,18 +2287,86 @@ export class Modal {
     deleteCount: number,
     ...components: (
       | MessageActionRow<ModalActionRowComponent>
+      | LabelComponent
+      | TextDisplayComponent
       | (Required<BaseMessageComponentOptions> & MessageActionRowOptions<ModalActionRowComponentResolvable>)
+      | (Required<BaseMessageComponentOptions> & LabelComponentOptions)
+      | (Required<BaseMessageComponentOptions> & TextDisplayComponentOptions)
     )[]
   ): this;
   public setTitle(title: string): this;
   public toJSON(): RawModalSubmitInteractionData;
 }
 
-export class ModalSubmitFieldsResolver {
-  constructor(components: PartialModalActionRow[]);
-  private readonly _fields: PartialTextInputData[];
-  public getField(customId: string): PartialTextInputData;
+export class ModalSubmitFieldsResolver<Cached extends CacheType = CacheType> {
+  constructor(
+    components: (PartialModalActionRow | ModalLabelData | PartialTextDisplayData)[],
+    resolved?: InteractionResolvedData<Cached>,
+  );
+  public components: (PartialModalActionRow | ModalLabelData | PartialTextDisplayData)[];
+  public resolved: Readonly<InteractionResolvedData<Cached>> | null;
+  public fields: Collection<string, ModalData>;
+  public getField<Type extends MessageComponentType>(customId: string, type: Type): Extract<ModalData, { type: Type }>;
+  public getField(customId: string, type?: MessageComponentType): ModalData;
   public getTextInputValue(customId: string): string;
+  public getStringSelectValues(customId: string): string[];
+  public getSelectedUsers(customId: string, required: true): Collection<Snowflake, User>;
+  public getSelectedUsers(customId: string, required?: boolean): Collection<Snowflake, User> | null;
+  public getSelectedMembers(customId: string): NonNullable<SelectMenuModalData<Cached>['members']> | null;
+  public getSelectedChannels<const Type extends ChannelTypes = ChannelTypes>(
+    customId: string,
+    required: true,
+    channelTypes?: readonly Type[],
+  ): Collection<
+    Snowflake,
+    Extract<
+      NonNullable<CommandInteractionOption<Cached>['channel']>,
+      {
+        type: Type extends ChannelTypes.GUILD_NEWS_THREAD | ChannelTypes.GUILD_PUBLIC_THREAD
+          ? ChannelTypes.GUILD_NEWS_THREAD | ChannelTypes.GUILD_PUBLIC_THREAD
+          : Type;
+      }
+    >
+  >;
+  public getSelectedChannels<const Type extends ChannelTypes = ChannelTypes>(
+    customId: string,
+    required?: boolean,
+    channelTypes?: readonly Type[],
+  ): Collection<
+    Snowflake,
+    Extract<
+      NonNullable<CommandInteractionOption<Cached>['channel']>,
+      {
+        type: Type extends ChannelTypes.GUILD_NEWS_THREAD | ChannelTypes.GUILD_PUBLIC_THREAD
+          ? ChannelTypes.GUILD_NEWS_THREAD | ChannelTypes.GUILD_PUBLIC_THREAD
+          : Type;
+      }
+    >
+  > | null;
+
+  public getSelectedRoles(customId: string, required: true): NonNullable<SelectMenuModalData<Cached>['roles']>;
+  public getSelectedRoles(
+    customId: string,
+    required?: boolean,
+  ): NonNullable<SelectMenuModalData<Cached>['roles']> | null;
+  public getSelectedMentionables(
+    customId: string,
+    required: true,
+  ): {
+    members: NonNullable<SelectMenuModalData<Cached>['members']>;
+    roles: NonNullable<SelectMenuModalData<Cached>['roles']>;
+    users: NonNullable<SelectMenuModalData<Cached>['users']>;
+  };
+  public getSelectedMentionables(
+    customId: string,
+    required?: boolean,
+  ): {
+    members: NonNullable<SelectMenuModalData<Cached>['members']>;
+    roles: NonNullable<SelectMenuModalData<Cached>['roles']>;
+    users: NonNullable<SelectMenuModalData<Cached>['users']>;
+  } | null;
+  public getUploadedFiles(customId: string, required: true): NonNullable<FileUploadModalData['attachments']>;
+  public getUploadedFiles(customId: string, required?: boolean): NonNullable<FileUploadModalData['attachments']> | null;
 }
 
 export interface ModalMessageModalSubmitInteraction<Cached extends CacheType = CacheType>
@@ -2118,11 +2385,11 @@ export interface ModalMessageModalSubmitInteraction<Cached extends CacheType = C
 export class ModalSubmitInteraction<Cached extends CacheType = CacheType> extends Interaction<Cached> {
   protected constructor(client: Client, data: RawModalSubmitInteractionData);
   public customId: string;
-  public components: PartialModalActionRow[];
+  public components: (PartialModalActionRow | ModalLabelData)[];
   public deferred: boolean;
   public ephemeral: boolean | null;
   public message: GuildCacheMessage<Cached> | null;
-  public fields: ModalSubmitFieldsResolver;
+  public fields: ModalSubmitFieldsResolver<Cached>;
   public replied: false;
   public webhook: InteractionWebhook;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
@@ -2356,7 +2623,7 @@ export class SelectMenuInteraction<
     MessageSelectMenu | UserSelectMenu | APISelectMenuComponent,
     MessageSelectMenu | UserSelectMenu | APISelectMenuComponent
   >;
-  public readonly resolved: Readonly<CommandInteractionResolvedData<Cached>>;
+  public readonly resolved: Readonly<InteractionResolvedData<Cached>>;
   public componentType: MenuType;
   public values: string[];
   public inGuild(): this is SelectMenuInteraction<'raw' | 'cached'>;
@@ -2775,6 +3042,29 @@ export class TextInputComponent extends BaseMessageComponent {
   public setValue(value: string): this;
   public toJSON(): RawTextInputComponentData;
   public static resolveStyle(style: TextInputStyleResolvable): TextInputStyle;
+}
+
+export class TextDisplayComponent extends BaseMessageComponentV2 {
+  public constructor(data?: TextDisplayComponent | TextDisplayComponentOptions);
+  public type: 'TEXT_DISPLAY';
+  public id?: number;
+  public content: string;
+  public setId(id: number): this;
+  public toJSON(): APITextDisplayComponent;
+}
+
+export class ThumbnailComponent extends BaseMessageComponentV2 {
+  public constructor(data?: ThumbnailComponent | ThumbnailComponentOptions);
+  public type: 'THUMBNAIL';
+  public id?: number;
+  public media: UnfurledMediaItem;
+  public description?: string;
+  public spoiler: boolean;
+  public setId(id: number): this;
+  public setMedia(url: string): this;
+  public setDescription(description: string): this;
+  public setSpoiler(spoilered?: boolean): this;
+  public toJSON(): APIThumbnailComponent;
 }
 
 export class ThreadChannel extends TextBasedChannelMixin(Channel, ['fetchWebhooks', 'createWebhook', 'setNSFW']) {
@@ -4969,7 +5259,7 @@ export interface CommandInteractionOption<Cached extends CacheType = CacheType> 
   attachment?: MessageAttachment;
 }
 
-export interface CommandInteractionResolvedData<Cached extends CacheType = CacheType> {
+export interface InteractionResolvedData<Cached extends CacheType = CacheType> {
   users?: Collection<Snowflake, User>;
   members?: Collection<Snowflake, CacheTypeReducer<Cached, GuildMember, APIInteractionDataResolvedGuildMember>>;
   roles?: Collection<Snowflake, CacheTypeReducer<Cached, Role, APIRole>>;
@@ -5995,17 +6285,26 @@ export type MemberMention = UserMention | `<@!${Snowflake}>`;
 
 export type MembershipState = keyof typeof MembershipStates;
 
-export type MessageActionRowComponent = MessageButton | MessageSelectMenu | UserSelectMenu;
+export type MessageActionRowComponent =
+  | MessageButton
+  | MessageSelectMenu
+  | UserSelectMenu
+  | RoleSelectMenu
+  | MentionableSelectMenu
+  | ChannelSelectMenu;
 
 export type MessageActionRowComponentOptions =
   | (Required<BaseMessageComponentOptions> & MessageButtonOptions)
   | (Required<BaseMessageComponentOptions> & MessageSelectMenuOptions)
-  | (Required<BaseMessageComponentOptions> & UserSelectMenuOptions);
+  | (Required<BaseMessageComponentOptions> & UserSelectMenuOptions)
+  | (Required<BaseMessageComponentOptions> & RoleSelectMenuOptions)
+  | (Required<BaseMessageComponentOptions> & MentionableSelectMenuOptions)
+  | (Required<BaseMessageComponentOptions> & ChannelSelectMenuOptions);
 
 export type MessageActionRowComponentResolvable =
   | MessageActionRowComponent
   | MessageActionRowComponentOptions
-  | APIMessageActionRowComponent;
+  | APIComponentInMessageActionRow;
 
 export type ModalActionRowComponent = TextInputComponent;
 
@@ -6014,7 +6313,7 @@ export type ModalActionRowComponentOptions = TextInputComponentOptions;
 export type ModalActionRowComponentResolvable =
   | ModalActionRowComponent
   | ModalActionRowComponentOptions
-  | APIModalActionRowComponent;
+  | APIComponentInModalActionRow;
 
 export interface MessageActionRowOptions<
   T extends
@@ -6022,6 +6321,94 @@ export interface MessageActionRowOptions<
     | ModalActionRowComponentResolvable = MessageActionRowComponentResolvable,
 > extends BaseMessageComponentOptions {
   components: T[];
+}
+
+export type SectionChildComponents = TextDisplayComponent;
+
+export type SectionChildComponentOptions = Required<BaseMessageComponentOptions> & TextDisplayComponentOptions;
+
+export type SectionChildComponentResolvable =
+  | SectionChildComponents
+  | SectionChildComponentOptions
+  | APITextDisplayComponent;
+
+export type SectionAccessoryComponents = MessageButton | ThumbnailComponent;
+
+export type SectionAccessoryComponentOptions = Required<BaseMessageComponentOptions> &
+  (MessageButtonOptions | ThumbnailComponentOptions);
+
+export type SectionAccessoryComponentResolvable =
+  | SectionAccessoryComponents
+  | SectionAccessoryComponentOptions
+  | APISectionAccessoryComponent;
+
+export interface SectionComponentOptions extends BaseMessageComponentOptions {
+  components?: SectionChildComponentResolvable[];
+  accessory?: SectionAccessoryComponentResolvable;
+  id?: number;
+}
+
+export type ContainerChildComponents =
+  | MessageActionRow<MessageActionRowComponent>
+  | TextDisplayComponent
+  | SectionComponent
+  | MediaGalleryComponent
+  | SeparatorComponent
+  | FileComponent;
+
+export type ContainerChildComponentOptions = Required<BaseMessageComponentOptions> &
+  (
+    | MessageActionRowOptions
+    | TextDisplayComponentOptions
+    | SectionComponentOptions
+    | MediaGalleryComponentOptions
+    | SeparatorComponentOptions
+    | FileComponentOptions
+  );
+
+export type ContainerChildComponentResolvable =
+  | ContainerChildComponents
+  | ContainerChildComponentOptions
+  | APIComponentInContainer;
+
+export interface ContainerComponentOptions extends BaseMessageComponentOptions {
+  components?: ContainerChildComponentResolvable[];
+  id?: number;
+}
+
+export type LabelChildComponents =
+  | TextInputComponent
+  | MessageSelectMenu
+  | UserSelectMenu
+  | RoleSelectMenu
+  | MentionableSelectMenu
+  | ChannelSelectMenu
+  | FileUploadComponent;
+
+export type LabelChildComponentOptions = Required<BaseMessageComponentOptions> &
+  (
+    | TextInputComponentOptions
+    | MessageSelectMenuOptions
+    | UserSelectMenuOptions
+    | RoleSelectMenuOptions
+    | MentionableSelectMenuOptions
+    | ChannelSelectMenuOptions
+    | FileUploadComponentOptions
+  );
+
+export type LabelChildComponentResolvable = LabelChildComponents | LabelChildComponentOptions | APIComponentInLabel;
+
+export interface LabelComponentOptions extends BaseMessageComponentOptions {
+  component?: LabelChildComponentResolvable;
+  label?: string;
+  description?: string;
+  id?: number;
+}
+
+export interface SeparatorComponentOptions extends BaseMessageComponentOptions {
+  divider?: boolean;
+  spacing?: SeparatorComponentSpacing;
+  id?: number;
 }
 
 export interface MessageActivity {
@@ -6052,12 +6439,25 @@ export type MessageButtonStyle = keyof typeof MessageButtonStyles;
 
 export type MessageButtonStyleResolvable = MessageButtonStyle | MessageButtonStyles;
 
+export type SeparatorSpacingValue = keyof typeof SeparatorComponentSpacing;
+
+export type SeparatorSpacingValueResolvable = SeparatorSpacingValue | SeparatorComponentSpacing;
+
 export interface MessageCollectorOptions extends CollectorOptions<[Message]> {
   max?: number;
   maxProcessed?: number;
 }
 
-export type MessageComponent = BaseMessageComponent | MessageActionRow | MessageButton | MessageSelectMenu;
+export type MessageComponent =
+  | BaseMessageComponent
+  | MessageActionRow
+  | MessageButton
+  | MessageSelectMenu
+  | UserSelectMenu
+  | RoleSelectMenu
+  | MentionableSelectMenu
+  | ChannelSelectMenu
+  | SectionComponent;
 
 export type MessageComponentCollectorOptions<T extends MessageComponentInteraction | ModalSubmitInteraction> = Omit<
   InteractionCollectorOptions<T>,
@@ -6072,7 +6472,10 @@ export type MessageComponentOptions =
   | MessageActionRowOptions
   | MessageButtonOptions
   | MessageSelectMenuOptions
-  | UserSelectMenuOptions;
+  | UserSelectMenuOptions
+  | RoleSelectMenuOptions
+  | MentionableSelectMenuOptions
+  | ChannelSelectMenuOptions;
 
 export type MessageComponentType = keyof typeof MessageComponentTypes;
 
@@ -6088,7 +6491,10 @@ export interface MessageEditOptions {
   files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
   flags?: BitFieldResolvable<MessageFlagsString, number>;
   allowedMentions?: MessageMentionOptions;
-  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
+  components?: (
+    | TopLevelMessageComponents
+    | (Required<BaseMessageComponentOptions> & TopLevelMessageComponentOptions)
+  )[];
 }
 
 export interface MessageEmbedAuthor {
@@ -6109,6 +6515,28 @@ export interface MessageEmbedImage {
   proxyURL?: string;
   height?: number;
   width?: number;
+}
+
+export interface UnfurledMediaItem {
+  url: string;
+  proxy_url?: string;
+  height?: number | null;
+  width?: number | null;
+  content_type?: string;
+  attachment_id?: Snowflake;
+}
+
+export interface MediaGalleryItemOptions {
+  media: UnfurledMediaItem;
+  description?: string;
+  spoiler?: boolean;
+}
+
+export type MediaGalleryItemResolvable = MediaGalleryItem | MediaGalleryItemOptions | APIMediaGalleryItem;
+
+export interface MediaGalleryComponentOptions {
+  id?: number;
+  items: MediaGalleryItemResolvable[];
 }
 
 export interface MessageEmbedOptions {
@@ -6212,14 +6640,17 @@ export interface MessageOptions {
   nonce?: string | number;
   content?: string | null;
   embeds?: (MessageEmbed | MessageEmbedOptions | APIEmbed)[];
-  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
+  components?: (
+    | TopLevelMessageComponents
+    | (Required<BaseMessageComponentOptions> & TopLevelMessageComponentOptions)
+  )[];
   allowedMentions?: MessageMentionOptions;
   files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
   reply?: ReplyOptions;
   forward?: ForwardOptions;
   stickers?: StickerResolvable[];
   attachments?: MessageAttachment[];
-  flags?: BitFieldResolvable<'SUPPRESS_EMBEDS' | 'SUPPRESS_NOTIFICATIONS', number>;
+  flags?: BitFieldResolvable<'IS_COMPONENTS_V2' | 'SUPPRESS_EMBEDS' | 'SUPPRESS_NOTIFICATIONS', number>;
   poll?: PollData;
 }
 
@@ -6240,6 +6671,7 @@ export interface BaseSelectMenuOptions extends BaseMessageComponentOptions {
   maxValues?: number;
   minValues?: number;
   placeholder?: string;
+  required?: true;
 }
 
 export interface MessageSelectMenuOptions extends BaseSelectMenuOptions {
@@ -6316,8 +6748,12 @@ export type MFALevel = keyof typeof MFALevels;
 
 export interface ModalOptions {
   components:
-    | MessageActionRow<ModalActionRowComponent>[]
-    | MessageActionRowOptions<ModalActionRowComponentResolvable>[];
+    | (MessageActionRow<ModalActionRowComponent> | LabelComponent | TextDisplayComponent)[]
+    | (
+        | MessageActionRowOptions<ModalActionRowComponentResolvable>
+        | LabelComponentOptions
+        | TextDisplayComponentOptions
+      )[];
   customId: string;
   title: string;
 }
@@ -6352,17 +6788,44 @@ export type OverwriteResolvable = PermissionOverwrites | OverwriteData;
 
 export type OverwriteType = 'member' | 'role';
 
-export interface PartialModalActionRow {
-  type: MessageComponentType;
-  components: PartialTextInputData[];
+export interface BaseModalData<Type extends MessageComponentType> {
+  customId: string;
+  id: number;
+  type: Type;
 }
 
-export interface PartialTextInputData {
-  value: string;
-  // TODO: use dapi types
-  type: MessageComponentType;
-  customId: string;
+export interface PartialModalActionRow {
+  type: 'ACTION_ROW';
+  components: TextInputModalData[];
 }
+
+export interface TextInputModalData extends BaseModalData<'TEXT_INPUT'> {
+  customId: string;
+  value: string;
+}
+
+export interface SelectMenuModalData<Cached extends CacheType = CacheType>
+  extends BaseModalData<'CHANNEL_SELECT' | 'MENTIONABLE_SELECT' | 'ROLE_SELECT' | 'SELECT_MENU' | 'USER_SELECT'> {
+  customId: string;
+  channels?: Collection<Snowflake, CacheTypeReducer<Cached, GuildBasedChannel, APIInteractionDataResolvedChannel>>;
+  members?: Collection<Snowflake, CacheTypeReducer<Cached, GuildMember, APIInteractionDataResolvedGuildMember>>;
+  roles?: Collection<Snowflake, CacheTypeReducer<Cached, Role, APIRole>>;
+  users?: Collection<Snowflake, User>;
+  values: readonly string[];
+}
+
+export interface FileUploadModalData extends BaseModalData<'FILE_UPLOAD'> {
+  customId: string;
+  attachments?: Collection<Snowflake, MessageAttachment>;
+}
+
+export type ModalData = SelectMenuModalData | TextInputModalData | FileUploadModalData;
+
+export interface ModalLabelData extends BaseModalData<'LABEL'> {
+  component: ModalData[];
+}
+
+export interface PartialTextDisplayData extends BaseModalData<'TEXT_DISPLAY'> {}
 
 export type PermissionFlags = Record<PermissionString, bigint>;
 
@@ -6759,6 +7222,19 @@ export interface TextInputComponentOptions extends BaseMessageComponentOptions {
 export type TextInputStyle = keyof typeof TextInputStyles;
 
 export type TextInputStyleResolvable = TextInputStyle | TextInputStyles;
+
+export interface TextDisplayComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  content: string;
+}
+
+export interface ThumbnailComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  media: UnfurledMediaItem;
+  description?: string;
+  spoiler: boolean;
+}
+
 export interface IntegrationAccount {
   id: string | Snowflake;
   name: string;
@@ -6870,6 +7346,7 @@ export type WebhookEditMessageOptions = Pick<
   WebhookMessageOptions,
   'content' | 'embeds' | 'files' | 'allowedMentions' | 'components' | 'attachments' | 'threadId'
 >;
+
 export interface InteractionEditReplyOptions extends WebhookEditMessageOptions, Pick<MessageOptions, 'poll'> {
   message?: MessageResolvable | '@original';
 }

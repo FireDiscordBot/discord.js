@@ -179,6 +179,11 @@ export const enum MessageButtonStyles {
   LINK = 5,
 }
 
+export const enum SeparatorComponentSpacing {
+  SMALL = 1,
+  LARGE = 2,
+}
+
 export const enum MessageReferenceType {
   DEFAULT = 0,
   FORWARD = 1,
@@ -201,6 +206,8 @@ export const enum MessageComponentTypes {
   FILE = 13,
   SEPARATOR = 14,
   CONTAINER = 17,
+  LABEL = 18,
+  FILE_UPLOAD = 19,
 }
 
 export const enum MFALevels {
