@@ -87,7 +87,7 @@ class ContainerComponent extends BaseMessageComponentV2 {
      * The color of this container
      * @type {?number}
      */
-    this.color = 'color' in data ? Util.resolveColor(data.color) : null;
+    this.color = 'accent_color' in data ? Util.resolveColor(data.accent_color) : null;
 
     /**
      * Whether or not the container is spoilered
