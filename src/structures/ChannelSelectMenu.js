@@ -105,7 +105,7 @@ class ChannelSelectMenu extends BaseSelectMenu {
    * @returns {ChannelSelectMenu}
    */
   spliceChannelTypes(index, deleteCount, ...types) {
-    this.channelTypes.splice(index, deleteCount, ...types);
+    this.channelTypes.splice(index, deleteCount, ...types.flat(Infinity));
     return this;
   }
 
