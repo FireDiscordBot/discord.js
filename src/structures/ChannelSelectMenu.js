@@ -131,7 +131,9 @@ class ChannelSelectMenu extends BaseSelectMenu {
       max_values: this.maxValues ?? (this.minValues ? this.defaultValues.length : undefined),
       default_values: this.defaultValues,
       type: typeof this.type === 'string' ? MessageComponentTypes[this.type] : this.type,
-      channel_types: this.channelTypes.length ? this.channelTypes : undefined,
+      channel_types: this.channelTypes.length
+        ? this.channelTypes.map(type => (typeof type === 'string' ? ChannelTypes[type] : type))
+        : undefined,
     };
   }
 }
