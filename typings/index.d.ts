@@ -2241,7 +2241,7 @@ export class MentionableSelectMenu extends BaseSelectMenu {
 
 export class ChannelSelectMenu extends BaseSelectMenu {
   public constructor(data?: ChannelSelectMenu | ChannelSelectMenuOptions | APISelectMenuComponent);
-  public channelTypes: ChannelTypes[] | null;
+  public channelTypes: ChannelTypes[];
   public defaultValues: ChannelSelectDefaultValue[];
   public addChannelTypes(...channelTypes: ChannelTypes[] | ChannelTypes[][]): this;
   public setChannelTypes(...channelTypes: ChannelTypes[] | ChannelTypes[][]): this;

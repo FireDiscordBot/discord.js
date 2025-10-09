@@ -39,10 +39,10 @@ class ChannelSelectMenu extends BaseSelectMenu {
 
     /**
      * The channel types to filter the selectable channels
-     * @type {?ChannelTypes[]}
+     * @type {ChannelTypes[]}
      */
 
-    this.channelTypes = data.channel_types?.map(type => ChannelTypes[type]) ?? null;
+    this.channelTypes = data.channel_types?.map(type => ChannelTypes[type]) ?? [];
   }
 
   /**
@@ -131,6 +131,7 @@ class ChannelSelectMenu extends BaseSelectMenu {
       max_values: this.maxValues ?? (this.minValues ? this.defaultValues.length : undefined),
       default_values: this.defaultValues,
       type: typeof this.type === 'string' ? MessageComponentTypes[this.type] : this.type,
+      channel_types: this.channelTypes.length ? this.channelTypes : undefined,
     };
   }
 }
