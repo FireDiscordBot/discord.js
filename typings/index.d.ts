@@ -2172,12 +2172,14 @@ export class MediaGalleryComponent extends BaseMessageComponentV2 {
 export class BaseSelectMenu extends BaseMessageComponent {
   public constructor(data?: BaseSelectMenu | BaseSelectMenuOptions | APISelectMenuComponent);
   public customId: string | null;
+  public required: boolean;
   public disabled: boolean;
   public maxValues: number | null;
   public minValues: number | null;
   public placeholder: string | null;
   public type: 'SELECT_MENU';
   public setCustomId(customId: string): this;
+  public setRequired(required?: boolean): this;
   public setDisabled(disabled?: boolean): this;
   public setMaxValues(maxValues: number): this;
   public setMinValues(minValues: number): this;

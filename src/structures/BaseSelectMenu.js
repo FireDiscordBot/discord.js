@@ -53,6 +53,12 @@ class BaseSelectMenu extends BaseMessageComponent {
     this.maxValues = data.max_values ?? data.maxValues ?? null;
 
     /**
+     * Whether this select menu is required in modals
+     * @type {boolean}
+     */
+    this.required = data.required ?? true;
+
+    /**
      * Whether this select menu is currently disabled
      * @type {boolean}
      */
@@ -66,6 +72,16 @@ class BaseSelectMenu extends BaseMessageComponent {
    */
   setCustomId(customId) {
     this.customId = Util.verifyString(customId, RangeError, 'SELECT_MENU_CUSTOM_ID');
+    return this;
+  }
+
+  /**
+   * Sets the required status of the select menu
+   * @param {boolean} [required=true] Whether this select menu should be required
+   * @returns {BaseSelectMenu}
+   */
+  setRequired(required = true) {
+    this.required = required;
     return this;
   }
 
@@ -118,6 +134,7 @@ class BaseSelectMenu extends BaseMessageComponent {
     return {
       custom_id: this.customId,
       disabled: this.disabled,
+      required: this.required,
       placeholder: this.placeholder,
       min_values: this.minValues,
       max_values: this.maxValues ?? (this.minValues ? this.options.length : undefined),
