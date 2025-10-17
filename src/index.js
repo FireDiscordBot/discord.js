@@ -140,11 +140,12 @@ exports.MessageReaction = require('./structures/MessageReaction');
 exports.MessageSelectMenu = require('./structures/MessageSelectMenu');
 // I'm pretty sure these are supposed to be alphabetical
 // but I wanna keep the select menus togather
-exports.StringSelectMenu = require('./structures/StringSelectMenu');
+exports.StringSelectMenu = require('./structures/MessageSelectMenu');
 exports.RoleSelectMenu = require('./structures/RoleSelectMenu');
 exports.UserSelectMenu = require('./structures/UserSelectMenu');
 exports.MentionableSelectMenu = require('./structures/MentionableSelectMenu');
 exports.ChannelSelectMenu = require('./structures/ChannelSelectMenu');
+// That's all folks!
 exports.Modal = require('./structures/Modal');
 exports.ModalSubmitInteraction = require('./structures/ModalSubmitInteraction');
 exports.NewsChannel = require('./structures/NewsChannel');
