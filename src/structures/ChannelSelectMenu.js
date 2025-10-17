@@ -126,6 +126,7 @@ class ChannelSelectMenu extends BaseSelectMenu {
     return {
       custom_id: this.customId,
       disabled: this.disabled,
+      required: this.required,
       placeholder: this.placeholder,
       min_values: this.minValues,
       max_values: this.maxValues ?? (this.minValues ? this.defaultValues.length : undefined),
