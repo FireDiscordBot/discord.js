@@ -158,7 +158,9 @@ class TextInputComponent extends BaseMessageComponent {
    * @returns {TextInputComponent}
    */
   setValue(value) {
-    this.value = Util.verifyString(value, RangeError, 'TEXT_INPUT_VALUE');
+    if (value) {
+      this.value = Util.verifyString(value, RangeError, 'TEXT_INPUT_VALUE');
+    }
     return this;
   }
 
