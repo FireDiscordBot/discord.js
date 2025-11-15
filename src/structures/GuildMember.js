@@ -91,6 +91,16 @@ class GuildMember extends Base {
     } else if (typeof this.avatar !== 'string') {
       this.avatar = null;
     }
+    if ('banner' in data) {
+      /**
+       * The members banner's hash
+       * <info>The member must be force fetched for this property to be present or be updated</info>
+       * @type {?string}
+       */
+      this.banner = data.banner;
+    } else if (this.banner !== null) {
+      this.banner ??= undefined;
+    }
     if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
     if ('premium_since' in data) {
       this.premiumSinceTimestamp = data.premium_since ? new Date(data.premium_since).getTime() : null;
@@ -196,6 +206,19 @@ class GuildMember extends Base {
    */
   displayAvatarURL(options) {
     return this.avatarURL(options) ?? this.user.displayAvatarURL(options);
+  }
+
+  /**
+   * A link to the members's guild banner if they have one.
+   * <info>This method will throw an error if called before the user is force fetched.
+   * See {@link GuildMember#banner} for more info</info>
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
+   * @returns {?string}
+   */
+  bannerURL({ format, size, dynamic } = {}) {
+    if (typeof this.banner === 'undefined') throw new Error('MEMBER_BANNER_NOT_FETCHED');
+    if (!this.banner) return null;
+    return this.client.rest.cdn.GuildMemberBanner(this.guild.id, this.id, this.banner, format, size, dynamic);
   }
 
   /**
@@ -515,6 +538,7 @@ class GuildMember extends Base {
     });
     json.avatarURL = this.avatarURL();
     json.displayAvatarURL = this.displayAvatarURL();
+    json.bannerURL = this.banner ? this.bannerURL() : null;
     return json;
   }
 }

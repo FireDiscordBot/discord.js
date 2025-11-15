@@ -73,6 +73,7 @@ const Messages = {
   FILE_UPLOAD_CUSTOM_ID: 'FileUploadComponent customId must be a string',
 
   USER_BANNER_NOT_FETCHED: "You must fetch this user's banner before trying to generate its URL!",
+  MEMBER_BANNER_NOT_FETCHED: "You must fetch this member's banner before trying to generate its URL!",
   USER_NO_DM_CHANNEL: 'No DM Channel exists!',
 
   VOICE_NOT_STAGE_CHANNEL: 'You are only allowed to do this in stage channels.',
