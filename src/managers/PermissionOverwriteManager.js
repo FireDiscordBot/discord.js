@@ -68,7 +68,7 @@ class PermissionOverwriteManager extends CachedManager {
         new TypeError('INVALID_TYPE', 'overwrites', 'Array or Collection of Permission Overwrites', true),
       );
     }
-    return this.channel.edit({ permissionOverwrites: overwrites, reason });
+    return this.channel.edit({ permissionOverwrites: overwrites }, reason);
   }
 
   /**
