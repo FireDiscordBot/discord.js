@@ -55,6 +55,28 @@ class MessageAttachment {
   }
 
   /**
+   * Sets the duration of this attachment.
+   * <info>This is only usable if the attachment is an audio file.</info>
+   * @param {number} duration The name of the file
+   * @returns {MessageAttachment} This attachment
+   */
+  setDuration(duration) {
+    this.duration = duration;
+    return this;
+  }
+
+  /**
+   * Sets the waveform of this attachment.
+   * <info>This is only usable if the attachment is an audio file.</info>
+   * @param {number} waveform The name of the file
+   * @returns {MessageAttachment} This attachment
+   */
+  setWaveform(waveform) {
+    this.waveform = waveform;
+    return this;
+  }
+
+  /**
    * Sets whether this attachment is a spoiler
    * @param {boolean} [spoiler=true] Whether the attachment should be marked as a spoiler
    * @returns {MessageAttachment} This attachment

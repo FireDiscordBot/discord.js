@@ -1870,6 +1870,8 @@ export class MessageAttachment {
   public setDescription(description: string): this;
   public setFile(attachment: BufferResolvable | Stream, name?: string): this;
   public setName(name: string): this;
+  public setDuration(duration: number): this;
+  public setWaveform(waveform: string): this;
   public setSpoiler(spoiler?: boolean): this;
   public toJSON(): unknown;
 }

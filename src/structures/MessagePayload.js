@@ -212,6 +212,8 @@ class MessagePayload {
     const attachments = this.options.files?.map((file, index) => ({
       id: index.toString(),
       description: file.description,
+      duration_secs: file.duration_secs,
+      waveform: file.waveform,
     }));
     if (Array.isArray(this.options.attachments)) {
       this.options.attachments.push(...(attachments ?? []));
@@ -272,6 +274,8 @@ class MessagePayload {
   static async resolveFile(fileLike) {
     let attachment;
     let name;
+    let duration_secs;
+    let waveform;
 
     const findName = thing => {
       if (typeof thing === 'string') {
@@ -293,10 +297,12 @@ class MessagePayload {
     } else {
       attachment = fileLike.attachment;
       name = fileLike.name ?? findName(attachment);
+      duration_secs = fileLike.duration;
+      waveform = fileLike.waveform;
     }
 
     const resource = await DataResolver.resolveFile(attachment);
-    return { attachment, name, file: resource };
+    return { attachment, name, file: resource, duration_secs, waveform };
   }
 
   /**
