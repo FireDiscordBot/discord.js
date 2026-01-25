@@ -151,6 +151,21 @@ class BaseMessageComponent {
         component = data instanceof FileUploadComponent ? data : new FileUploadComponent(data);
         break;
       }
+      case MessageComponentTypes.RADIO_GROUP: {
+        const RadioGroupComponent = require('./RadioGroupComponent');
+        component = data instanceof RadioGroupComponent ? data : new RadioGroupComponent(data);
+        break;
+      }
+      case MessageComponentTypes.CHECKBOX_GROUP: {
+        const CheckboxGroupComponent = require('./CheckboxGroupComponent');
+        component = data instanceof CheckboxGroupComponent ? data : new CheckboxGroupComponent(data);
+        break;
+      }
+      case MessageComponentTypes.CHECKBOX: {
+        const CheckboxComponent = require('./CheckboxComponent');
+        component = data instanceof CheckboxComponent ? data : new CheckboxComponent(data);
+        break;
+      }
       default:
         if (client) {
           client.emit(Events.DEBUG, `[BaseMessageComponent] Received component with unknown type: ${data.type}`);

@@ -225,6 +225,36 @@ class ModalSubmitFieldsResolver {
 
     return component.attachments ?? null;
   }
+
+  /**
+   * Gets the value of a radio group component given a custom id
+   * @param {string} customId The custom id of the radio group component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {?string}
+   */
+  getRadioGroupValue(customId, required = false) {
+    return this._getTypedComponent(customId, [MessageComponentTypes.RADIO_GROUP], ['value'], required).value;
+  }
+
+  /**
+   * Gets the values of a checkbox group component given a custom id
+   *
+   * @param {string} customId The custom id of the checkbox group component
+   * @param {boolean} [required=false] Whether to throw an error if the component value is not found or empty
+   * @returns {string[]}
+   */
+  getCheckboxGroupValues(customId, required = false) {
+    return this._getTypedComponent(customId, [MessageComponentTypes.CHECKBOX_GROUP], ['values'], required).values;
+  }
+
+  /**
+   * Gets the value of a checkbox component given a custom id
+   * @param {string} customId The custom id of the checkbox component
+   * @returns {?string}
+   */
+  getCheckboxValue(customId) {
+    return this._getTypedComponent(customId, [MessageComponentTypes.CHECKBOX], ['value'], false).value;
+  }
 }
 
 module.exports = ModalSubmitFieldsResolver;

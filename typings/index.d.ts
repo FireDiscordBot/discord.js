@@ -39,6 +39,7 @@ import {
   APIEmbed,
   APIEmoji,
   APIFileComponent,
+  APIFileUploadComponent,
   APIInteractionDataResolvedChannel,
   APIInteractionDataResolvedGuildMember,
   APIInteractionGuildMember,
@@ -1658,6 +1659,9 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
     CONTAINER: never;
     LABEL: never;
     FILE_UPLOAD: never;
+    RADIO_GROUP: never;
+    CHECKBOX_GROUP: never;
+    CHECKBOX: never;
   }
 >;
 
@@ -1905,16 +1909,6 @@ export class FileComponent extends BaseMessageComponentV2 {
   public toJSON(): APIFileComponent;
 }
 
-// TODO: remove when discord-api-types has it
-type APIFileUploadComponent = {
-  type: MessageComponentTypes.FILE_UPLOAD; // 19
-  id?: number;
-  custom_id: string;
-  min_values?: number; // 0-10
-  max_values?: number; // 1-10
-  required?: boolean;
-};
-
 export interface FileUploadComponentOptions extends BaseMessageComponentOptions {
   id?: number;
   customId: string;
@@ -1937,6 +1931,122 @@ export class FileUploadComponent extends BaseMessageComponentV2 {
   public setMaxValues(maxValues: number): this;
   public setMinValues(minValues: number): this;
   public toJSON(): APIFileUploadComponent;
+}
+
+// TODO: remove when discord-api-types has it
+type APIRadioGroupComponent = {
+  type: MessageComponentTypes.RADIO_GROUP; // 21
+  id?: number;
+  custom_id: string;
+  options: RadioGroupOption[];
+  required?: boolean;
+};
+
+export interface RadioGroupOption {
+  label: string;
+  value: string;
+  description?: string;
+  default?: boolean;
+}
+
+export interface RadioGroupComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  customId: string;
+  options?: RadioGroupOption[];
+  required?: boolean;
+}
+
+export class RadioGroupComponent extends BaseMessageComponentV2 {
+  public constructor(data?: RadioGroupComponent | RadioGroupComponentOptions | APIRadioGroupComponent);
+  public customId: string | null;
+  public id?: number;
+  public options: RadioGroupOption[];
+  public required: boolean;
+  public type: 'RADIO_GROUP';
+  public setCustomId(customId: string): this;
+  public setId(id: number): this;
+  public setRequired(required?: boolean): this;
+  public addOptions(...options: RadioGroupOption[] | RadioGroupOption[][]): this;
+  public setOptions(...options: RadioGroupOption[] | RadioGroupOption[][]): this;
+  public spliceOptions(index: number, deleteCount: number, ...options: RadioGroupOption[] | RadioGroupOption[][]): this;
+  public toJSON(): APIRadioGroupComponent;
+}
+
+// TODO: remove when discord-api-types has it
+type APICheckboxGroupComponent = {
+  type: MessageComponentTypes.CHECKBOX_GROUP; // 22
+  id?: number;
+  custom_id: string;
+  options: CheckboxGroupOption[];
+  min_values?: number;
+  max_values?: number;
+  required?: boolean;
+};
+
+export interface CheckboxGroupOption {
+  label: string;
+  value: string;
+  description?: string;
+  default?: boolean;
+}
+
+export interface CheckboxGroupComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  customId: string;
+  options?: CheckboxGroupOption[];
+  minValues?: number;
+  maxValues?: number;
+  required?: boolean;
+}
+
+export class CheckboxGroupComponent extends BaseMessageComponentV2 {
+  public constructor(data?: CheckboxGroupComponent | CheckboxGroupComponentOptions | APICheckboxGroupComponent);
+  public customId: string | null;
+  public id?: number;
+  public options: CheckboxGroupOption[];
+  public minValues: number | null;
+  public maxValues: number | null;
+  public required: boolean;
+  public type: 'CHECKBOX_GROUP';
+  public setCustomId(customId: string): this;
+  public setId(id: number): this;
+  public setRequired(required?: boolean): this;
+  public setMinValues(minValues: number): this;
+  public setMaxValues(maxValues: number): this;
+  public addOptions(...options: CheckboxGroupOption[] | CheckboxGroupOption[][]): this;
+  public setOptions(...options: CheckboxGroupOption[] | CheckboxGroupOption[][]): this;
+  public spliceOptions(
+    index: number,
+    deleteCount: number,
+    ...options: CheckboxGroupOption[] | CheckboxGroupOption[][]
+  ): this;
+  public toJSON(): APICheckboxGroupComponent;
+}
+
+// TODO: remove when discord-api-types has it
+type APICheckboxComponent = {
+  type: MessageComponentTypes.CHECKBOX; // 23
+  id?: number;
+  custom_id: string;
+  default?: boolean;
+};
+
+export interface CheckboxComponentOptions extends BaseMessageComponentOptions {
+  id?: number;
+  customId: string;
+  default?: boolean;
+}
+
+export class CheckboxComponent extends BaseMessageComponentV2 {
+  public constructor(data?: CheckboxComponent | CheckboxComponentOptions | APICheckboxComponent);
+  public customId: string | null;
+  public id?: number;
+  public default: boolean;
+  public type: 'CHECKBOX';
+  public setCustomId(customId: string): this;
+  public setId(id: number): this;
+  public setDefault(checked?: boolean): this;
+  public toJSON(): APICheckboxComponent;
 }
 
 export class MessageButton extends BaseMessageComponent {
@@ -2373,6 +2483,11 @@ export class ModalSubmitFieldsResolver<Cached extends CacheType = CacheType> {
   } | null;
   public getUploadedFiles(customId: string, required: true): NonNullable<FileUploadModalData['attachments']>;
   public getUploadedFiles(customId: string, required?: boolean): NonNullable<FileUploadModalData['attachments']> | null;
+  public getRadioGroupValue(customId: string, required: true): string;
+  public getRadioGroupValue(customId: string, required?: boolean): string | null;
+  public getCheckboxGroupValues(customId: string, required: true): string[];
+  public getCheckboxGroupValues(customId: string, required?: boolean): string[];
+  public getCheckboxValue(customId: string): string | null;
 }
 
 export interface ModalMessageModalSubmitInteraction<Cached extends CacheType = CacheType>
@@ -6397,7 +6512,10 @@ export type LabelChildComponents =
   | RoleSelectMenu
   | MentionableSelectMenu
   | ChannelSelectMenu
-  | FileUploadComponent;
+  | FileUploadComponent
+  | RadioGroupComponent
+  | CheckboxGroupComponent
+  | CheckboxComponent;
 
 export type LabelChildComponentOptions = Required<BaseMessageComponentOptions> &
   (
@@ -6408,6 +6526,9 @@ export type LabelChildComponentOptions = Required<BaseMessageComponentOptions> &
     | MentionableSelectMenuOptions
     | ChannelSelectMenuOptions
     | FileUploadComponentOptions
+    | RadioGroupComponentOptions
+    | CheckboxGroupComponentOptions
+    | CheckboxComponentOptions
   );
 
 export type LabelChildComponentResolvable = LabelChildComponents | LabelChildComponentOptions | APIComponentInLabel;
@@ -6833,7 +6954,28 @@ export interface FileUploadModalData extends BaseModalData<'FILE_UPLOAD'> {
   attachments?: Collection<Snowflake, MessageAttachment>;
 }
 
-export type ModalData = SelectMenuModalData | TextInputModalData | FileUploadModalData;
+export interface RadioGroupModalData extends BaseModalData<'RADIO_GROUP'> {
+  customId: string;
+  value: string | null;
+}
+
+export interface CheckboxGroupModalData extends BaseModalData<'CHECKBOX_GROUP'> {
+  customId: string;
+  values: readonly string[];
+}
+
+export interface CheckboxModalData extends BaseModalData<'CHECKBOX'> {
+  customId: string;
+  value: string | null;
+}
+
+export type ModalData =
+  | SelectMenuModalData
+  | TextInputModalData
+  | FileUploadModalData
+  | RadioGroupModalData
+  | CheckboxGroupModalData
+  | CheckboxModalData;
 
 export interface ModalLabelData extends BaseModalData<'LABEL'> {
   component: ModalData[];

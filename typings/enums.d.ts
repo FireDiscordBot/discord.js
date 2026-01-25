@@ -208,6 +208,9 @@ export const enum MessageComponentTypes {
   CONTAINER = 17,
   LABEL = 18,
   FILE_UPLOAD = 19,
+  RADIO_GROUP = 21,
+  CHECKBOX_GROUP = 22,
+  CHECKBOX = 23,
 }
 
 export const enum MFALevels {

@@ -1451,6 +1451,10 @@ exports.MessageComponentTypes = createEnum([
   'CONTAINER',
   'LABEL',
   'FILE_UPLOAD',
+  null,
+  'RADIO_GROUP',
+  'CHECKBOX_GROUP',
+  'CHECKBOX',
 ]);
 
 /**

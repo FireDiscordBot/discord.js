@@ -16,13 +16,19 @@ class LabelComponent extends BaseMessageComponentV2 {
    * * RoleSelectMenu
    * * MentionableSelectMenu
    * * ChannelSelectMenu
+   * * RadioGroupComponent
+   * * CheckboxGroupComponent
+   * * CheckboxComponent
    * @typedef {
    * TextInputComponent |
    * MessageSelectMenu |
    * UserSelectMenu |
    * RoleSelectMenu |
    * MentionableSelectMenu |
-   * ChannelSelectMenu
+   * ChannelSelectMenu |
+   * RadioGroupComponent |
+   * CheckboxGroupComponent |
+   * CheckboxComponent
    * } LabelChildComponents
    */
 
@@ -34,13 +40,19 @@ class LabelComponent extends BaseMessageComponentV2 {
    * * MediaGalleryComponentOptions
    * * SeparatorComponentOptions
    * * FileComponentOptions
-   * * @typedef {
+   * * RadioGroupComponentOptions
+   * * CheckboxGroupComponentOptions
+   * * CheckboxComponentOptions
+   * @typedef {
    * TextInputComponentOptions |
    * MessageSelectMenuOptions |
    * UserSelectMenuOptions |
    * RoleSelectMenuOptions |
    * MentionableSelectMenuOptions |
-   * ChannelSelectMenuOptions
+   * ChannelSelectMenuOptions |
+   * RadioGroupComponentOptions |
+   * CheckboxGroupComponentOptions |
+   * CheckboxComponentOptions
    * } LabelChildComponentOptions
    */
 
