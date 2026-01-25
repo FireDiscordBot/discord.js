@@ -91,6 +91,7 @@ class FileComponent extends BaseMessageComponentV2 {
    * @returns {FileComponent}
    */
   setFile(name) {
+    this.name = name;
     this.file = { url: `attachment://${name}` };
     return this;
   }
