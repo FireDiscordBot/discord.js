@@ -95,7 +95,7 @@ class Permissions extends BitField {
  * * `MANAGE_NICKNAMES` (change other members' nicknames)
  * * `MANAGE_ROLES`
  * * `MANAGE_WEBHOOKS`
- * * `MANAGE_EMOJIS_AND_STICKERS`
+ * * `MANAGE_GUILD_EXPRESSIONS`
  * * `USE_APPLICATION_COMMANDS`
  * * `REQUEST_TO_SPEAK`
  * * `MANAGE_EVENTS`
@@ -106,7 +106,7 @@ class Permissions extends BitField {
  * * `CREATE_PRIVATE_THREADS`
  * * `USE_EXTERNAL_STICKERS` (use stickers from different guilds)
  * * `SEND_MESSAGES_IN_THREADS`
- * * `START_EMBEDDED_ACTIVITIES`
+ * * `USE_EMBEDDED_ACTIVITIES`
  * * `MODERATE_MEMBERS`
  * * `VIEW_CREATOR_MONETIZATION_ANALYTICS`
  * * `USE_SOUNDBOARD`
@@ -116,6 +116,8 @@ class Permissions extends BitField {
  * * `SEND_VOICE_MESSAGES`
  * * `SEND_POLLS`
  * * `USE_EXTERNAL_APPS`
+ * * `PIN_MESSAGES`
+ * * `BYPASS_SLOWMODE`
  * @type {Object<string, bigint>}
  * @see {@link https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags}
  */
@@ -150,19 +152,18 @@ Permissions.FLAGS = {
   MANAGE_NICKNAMES: 1n << 27n,
   MANAGE_ROLES: 1n << 28n,
   MANAGE_WEBHOOKS: 1n << 29n,
-  MANAGE_EMOJIS_AND_STICKERS: 1n << 30n,
+  MANAGE_GUILD_EXPRESSIONS: 1n << 30n,
   USE_APPLICATION_COMMANDS: 1n << 31n,
   REQUEST_TO_SPEAK: 1n << 32n,
   MANAGE_EVENTS: 1n << 33n,
   MANAGE_THREADS: 1n << 34n,
-  // TODO: Remove deprecated USE_*_THREADS flags in v14
   USE_PUBLIC_THREADS: 1n << 35n,
   CREATE_PUBLIC_THREADS: 1n << 35n,
   USE_PRIVATE_THREADS: 1n << 36n,
   CREATE_PRIVATE_THREADS: 1n << 36n,
   USE_EXTERNAL_STICKERS: 1n << 37n,
   SEND_MESSAGES_IN_THREADS: 1n << 38n,
-  START_EMBEDDED_ACTIVITIES: 1n << 39n,
+  USE_EMBEDDED_ACTIVITIES: 1n << 39n,
   MODERATE_MEMBERS: 1n << 40n,
   VIEW_CREATOR_MONETIZATION_ANALYTICS: 1n << 41n,
   USE_SOUNDBOARD: 1n << 42n,
@@ -170,8 +171,10 @@ Permissions.FLAGS = {
   CREATE_EVENTS: 1n << 44n,
   USE_EXTERNAL_SOUNDS: 1n << 45n,
   SEND_VOICE_MESSAGES: 1n << 46n,
-  SEND_POLLS: 1n << 47n,
-  USE_EXTERNAL_APPS: 1n << 48n,
+  SEND_POLLS: 1n << 49n,
+  USE_EXTERNAL_APPS: 1n << 50n,
+  PIN_MESSAGES: 1n << 51n,
+  BYPASS_SLOWMODE: 1n << 52n,
 };
 
 /**
