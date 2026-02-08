@@ -7,7 +7,7 @@ const { Events } = require('../../util/Constants');
 class GuildEmojiDeleteAction extends Action {
   handle(emoji) {
     emoji.guild.emojis.cache.delete(emoji.id);
-    deletedEmojis.add(emoji);
+    deletedEmojis.set(emoji.id, Date.now());
     /**
      * Emitted whenever a custom emoji is deleted in a guild.
      * @event Client#emojiDelete

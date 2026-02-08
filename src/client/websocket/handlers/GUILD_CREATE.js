@@ -1,8 +1,15 @@
 'use strict';
 
+const { deletedGuilds } = require('../../../structures/Guild');
 const { Events, Status } = require('../../../util/Constants');
 
 module.exports = (client, { d: data }, shard) => {
+  // Remove from deletedGuilds collection
+  // if present, i.e. bot was re-added
+  if (deletedGuilds.has(data.id)) {
+    deletedGuilds.delete(data.id);
+  }
+
   let guild = client.guilds.cache.get(data.id);
   if (guild) {
     if (!guild.available && !data.unavailable) {

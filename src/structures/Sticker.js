@@ -1,18 +1,20 @@
 'use strict';
 
-const process = require('node:process');
 const Base = require('./Base');
 const { Error } = require('../errors');
 const { StickerFormatTypes, StickerTypes } = require('../util/Constants');
+const LimitedCollection = require('../util/LimitedCollection');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
- * @type {WeakSet<StageInstance>}
+ * @type {Map<Snowflake, number>}
  * @private
  * @internal
  */
-const deletedStickers = new WeakSet();
-let deprecationEmittedForDeleted = false;
+const deletedStickers = new LimitedCollection({
+  sweepFilter: () => (_, deleted) => Date.now() - deleted >= 300_000,
+  sweepInterval: 60,
+});
 
 /**
  * Represents a Sticker.
@@ -148,33 +150,35 @@ class Sticker extends Base {
   }
 
   /**
-   * Whether or not the sticker has been deleted
+   * Whether or not the structure has been deleted
    * @type {boolean}
-   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   * @readonly
    */
   get deleted() {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Sticker#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
+    return deletedStickers.has(this.id);
+  }
 
-    return deletedStickers.has(this);
+  /**
+   * Approximately when the structure has been deleted
+   * @type {number?}
+   * @readonly
+   */
+  get deletedTimestamp() {
+    return deletedStickers.get(this.id);
+  }
+
+  /**
+   * Approximately when the structure has been deleted
+   * @type {Date}
+   * @readonly
+   */
+  get deletedAt() {
+    return this.deleted && new Date(deletedStickers.get(this.id));
   }
 
   set deleted(value) {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Sticker#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
-
-    if (value) deletedStickers.add(this);
-    else deletedStickers.delete(this);
+    if (value) deletedStickers.set(this.id, Date.now());
+    else deletedStickers.delete(this.id);
   }
 
   /**

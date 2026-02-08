@@ -1,6 +1,5 @@
 'use strict';
 
-const process = require('node:process');
 const { Collection } = require('@discordjs/collection');
 const Base = require('./Base');
 const BaseMessageComponent = require('./BaseMessageComponent');
@@ -22,18 +21,21 @@ const {
   MaxBulkDeletableMessageAge,
   MessageReferenceType,
 } = require('../util/Constants');
+const LimitedCollection = require('../util/LimitedCollection');
 const MessageFlags = require('../util/MessageFlags');
 const Permissions = require('../util/Permissions');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
 
 /**
- * @type {WeakSet<Message>}
+ * @type {Map<string, number>}
  * @private
  * @internal
  */
-const deletedMessages = new WeakSet();
-let deprecationEmittedForDeleted = false;
+const deletedMessages = new LimitedCollection({
+  sweepFilter: () => (_, deleted) => Date.now() - deleted >= 300_000,
+  sweepInterval: 60,
+});
 
 /**
  * Represents a message on Discord.
@@ -408,31 +410,33 @@ class Message extends Base {
   /**
    * Whether or not the structure has been deleted
    * @type {boolean}
-   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   * @readonly
    */
   get deleted() {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Message#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
+    return deletedMessages.has(this.id);
+  }
 
-    return deletedMessages.has(this);
+  /**
+   * Approximately when the structure has been deleted
+   * @type {number?}
+   * @readonly
+   */
+  get deletedTimestamp() {
+    return deletedMessages.get(this.id);
+  }
+
+  /**
+   * Approximately when the structure has been deleted
+   * @type {Date}
+   * @readonly
+   */
+  get deletedAt() {
+    return this.deleted && new Date(deletedMessages.get(this.id));
   }
 
   set deleted(value) {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Message#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
-
-    if (value) deletedMessages.add(this);
-    else deletedMessages.delete(this);
+    if (value) deletedMessages.set(this.id, Date.now());
+    else deletedMessages.delete(this.id);
   }
 
   /**

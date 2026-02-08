@@ -1,6 +1,7 @@
 'use strict';
 
 const Action = require('./Action');
+const { deletedGuildMembers } = require('../../structures/GuildMember');
 const { Status, Events } = require('../../util/Constants');
 
 class GuildMemberUpdateAction extends Action {
@@ -27,7 +28,7 @@ class GuildMemberUpdateAction extends Action {
          * @param {GuildMember} newMember The member after the update
          */
         if (shard.status === Status.READY && !member.equals(old)) client.emit(Events.GUILD_MEMBER_UPDATE, old, member);
-      } else {
+      } else if (!deletedGuildMembers.has(data.user.id)) {
         const newMember = guild.members._add(data);
         /**
          * Emitted whenever a member becomes available.

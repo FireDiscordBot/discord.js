@@ -12,9 +12,10 @@ class ThreadDeleteAction extends Action {
 
     if (thread) {
       client.channels._remove(thread.id);
-      deletedChannels.add(thread);
+      const deletedAt = Date.now();
+      deletedChannels.set(thread.id, deletedAt);
       for (const message of thread.messages.cache.values()) {
-        deletedMessages.add(message);
+        deletedMessages.set(message, deletedAt);
       }
 
       /**

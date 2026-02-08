@@ -619,8 +619,9 @@ export abstract class Channel extends Base {
   public constructor(client: Client, data?: RawChannelData, immediatePatch?: boolean);
   public readonly createdAt: Date | null;
   public readonly createdTimestamp: number | null;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public id: Snowflake;
   public readonly partial: false;
   public type: keyof typeof ChannelTypes;
@@ -987,8 +988,9 @@ export class Emoji extends Base {
   public animated: boolean | null;
   public readonly createdAt: Date | null;
   public readonly createdTimestamp: number | null;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public id: Snowflake | null;
   public name: string | null;
   public readonly identifier: string;
@@ -1015,8 +1017,9 @@ export class Guild extends AnonymousGuild {
   public channels: GuildChannelManager;
   public commands: GuildApplicationCommandManager;
   public defaultMessageNotifications: DefaultMessageNotificationLevel | number;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public discoverySplash: string | null;
   public emojis: GuildEmojiManager;
   public explicitContentFilter: ExplicitContentFilterLevel;
@@ -1232,8 +1235,9 @@ export class GuildMember extends PartialTextBasedChannel(Base) {
   public avatar: string | null;
   public banner: string | null | undefined;
   public readonly bannable: boolean;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public readonly displayColor: number;
   public readonly displayHexColor: HexColorString;
   public readonly displayName: string;
@@ -1606,6 +1610,18 @@ export class LimitedCollection<K, V> extends Collection<K, V> {
   public static filterByLifetime<K, V>(options?: LifetimeFilterOptions<K, V>): SweepFilter<K, V>;
 }
 
+export class LimitedSet<V> extends Set<V> {
+  public constructor(options?: LimitedSetOptions<V>, iterable?: Iterable<V>);
+  public maxSize: number;
+  public keepOverLimit: ((value: V, set: this) => boolean) | null;
+  /** @deprecated Use Global Sweepers instead */
+  public interval: NodeJS.Timeout | null;
+  /** @deprecated Use Global Sweepers instead */
+  public sweepFilter: SweepFilterSet<V> | null;
+
+  public sweep(fn: (value: V, set: this) => boolean): number;
+}
+
 export type MessageCollectorOptionsParams<
   T extends MessageComponentTypeResolvable,
   Cached extends boolean = boolean,
@@ -1705,8 +1721,9 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public createdTimestamp: number;
   public readonly crosspostable: boolean;
   public readonly deletable: boolean;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public readonly editable: boolean;
   public readonly editedAt: Date | null;
   public editedTimestamp: number | null;
@@ -2680,8 +2697,9 @@ export class Role extends Base {
   public color: number;
   public readonly createdAt: Date;
   public readonly createdTimestamp: number;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public readonly editable: boolean;
   public flags: Readonly<RoleFlags>;
   public guild: Guild;
@@ -2893,8 +2911,9 @@ export class DirectoryChannel extends Channel {
 export class StageInstance extends Base {
   public constructor(client: Client, data: RawStageInstanceData, channel: StageChannel);
   public id: Snowflake;
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public guildId: Snowflake;
   public channelId: Snowflake;
   public topic: string;
@@ -2913,8 +2932,9 @@ export class StageInstance extends Base {
 
 export class Sticker extends Base {
   public constructor(client: Client, data: RawStickerData);
-  /** @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091 */
   public deleted: boolean;
+  public deletedAt: Date | null;
+  public deletedTimestamp: number | null;
   public readonly createdTimestamp: number;
   public readonly createdAt: Date;
   public available: boolean | null;
@@ -6404,6 +6424,12 @@ export interface LifetimeFilterOptions<K, V> {
   lifetime?: number;
 }
 
+export interface LifetimeFilterOptionsSet<V> {
+  excludeFromSweep?: (value: V, set: LimitedSet<V>) => boolean;
+  getComparisonTimestamp?: (value: V, set: LimitedSet<V>) => number;
+  lifetime?: number;
+}
+
 export interface MakeErrorOptions {
   name: string;
   message: string;
@@ -7305,6 +7331,8 @@ export type SweepFilter<K, V> = (
   collection: LimitedCollection<K, V>,
 ) => ((value: V, key: K, collection: LimitedCollection<K, V>) => boolean) | null;
 
+export type SweepFilterSet<V> = (set: LimitedSet<V>) => ((value: V, set: LimitedSet<V>) => boolean) | null;
+
 export interface SweepOptions<K, V> {
   interval: number;
   filter: GlobalSweepFilter<K, V>;
@@ -7343,9 +7371,14 @@ export type SweeperOptions = {
 export interface LimitedCollectionOptions<K, V> {
   maxSize?: number;
   keepOverLimit?: (value: V, key: K, collection: LimitedCollection<K, V>) => boolean;
-  /** @deprecated Use Global Sweepers instead */
   sweepFilter?: SweepFilter<K, V>;
-  /** @deprecated Use Global Sweepers instead */
+  sweepInterval?: number;
+}
+
+export interface LimitedSetOptions<V> {
+  maxSize?: number;
+  keepOverLimit?: (value: V, set: LimitedSet<V>) => boolean;
+  sweepFilter?: SweepFilterSet<V>;
   sweepInterval?: number;
 }
 

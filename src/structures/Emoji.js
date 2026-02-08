@@ -1,16 +1,18 @@
 'use strict';
 
-const process = require('node:process');
 const Base = require('./Base');
+const LimitedCollection = require('../util/LimitedCollection');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
- * @type {WeakSet<Emoji>}
+ * @type {Map<string, number>}
  * @private
  * @internal
  */
-const deletedEmojis = new WeakSet();
-let deprecationEmittedForDeleted = false;
+const deletedEmojis = new LimitedCollection({
+  sweepFilter: () => (_, deleted) => Date.now() - deleted >= 300_000,
+  sweepInterval: 60,
+});
 
 /**
  * Represents raw emoji data from the API
@@ -49,31 +51,33 @@ class Emoji extends Base {
   /**
    * Whether or not the structure has been deleted
    * @type {boolean}
-   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   * @readonly
    */
   get deleted() {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Emoji#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
+    return deletedEmojis.has(this.id);
+  }
 
-    return deletedEmojis.has(this);
+  /**
+   * Approximately when the structure has been deleted
+   * @type {number?}
+   * @readonly
+   */
+  get deletedTimestamp() {
+    return deletedEmojis.get(this.id);
+  }
+
+  /**
+   * Approximately when the structure has been deleted
+   * @type {Date}
+   * @readonly
+   */
+  get deletedAt() {
+    return this.deleted && new Date(deletedEmojis.get(this.id));
   }
 
   set deleted(value) {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Emoji#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
-
-    if (value) deletedEmojis.add(this);
-    else deletedEmojis.delete(this);
+    if (value) deletedEmojis.set(this.id, Date.now());
+    else deletedEmojis.delete(this.id);
   }
 
   /**

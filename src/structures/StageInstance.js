@@ -1,17 +1,19 @@
 'use strict';
 
-const process = require('node:process');
 const Base = require('./Base');
 const { PrivacyLevels } = require('../util/Constants');
+const LimitedCollection = require('../util/LimitedCollection');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
- * @type {WeakSet<StageInstance>}
+ * @type {Map<Snowflake, number>}
  * @private
  * @internal
  */
-const deletedStageInstances = new WeakSet();
-let deprecationEmittedForDeleted = false;
+const deletedStageInstances = new LimitedCollection({
+  sweepFilter: () => (_, deleted) => Date.now() - deleted >= 300_000,
+  sweepInterval: 60,
+});
 
 /**
  * Represents a stage instance.
@@ -103,33 +105,35 @@ class StageInstance extends Base {
   }
 
   /**
-   * Whether or not the stage instance has been deleted
+   * Whether or not the structure has been deleted
    * @type {boolean}
-   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   * @readonly
    */
   get deleted() {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'StageInstance#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
+    return deletedStageInstances.has(this.id);
+  }
 
-    return deletedStageInstances.has(this);
+  /**
+   * Approximately when the structure has been deleted
+   * @type {number?}
+   * @readonly
+   */
+  get deletedTimestamp() {
+    return deletedStageInstances.get(this.id);
+  }
+
+  /**
+   * Approximately when the structure has been deleted
+   * @type {Date}
+   * @readonly
+   */
+  get deletedAt() {
+    return this.deleted && new Date(deletedStageInstances.get(this.id));
   }
 
   set deleted(value) {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'StageInstance#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
-
-    if (value) deletedStageInstances.add(this);
-    else deletedStageInstances.delete(this);
+    if (value) deletedStageInstances.set(this.id, Date.now());
+    else deletedStageInstances.delete(this.id);
   }
 
   /**
@@ -167,7 +171,7 @@ class StageInstance extends Base {
   async delete() {
     await this.guild.stageInstances.delete(this.channelId);
     const clone = this._clone();
-    deletedStageInstances.add(clone);
+    deletedStageInstances.set(clone.id, Date.now());
     return clone;
   }
 

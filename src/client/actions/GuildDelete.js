@@ -39,7 +39,7 @@ class GuildDeleteAction extends Action {
 
       // Delete guild
       client.guilds.cache.delete(guild.id);
-      deletedGuilds.add(guild);
+      deletedGuilds.set(guild.id, Date.now());
 
       /**
        * Emitted whenever a guild kicks the client or the guild is deleted/left.

@@ -2,6 +2,7 @@
 
 const Action = require('./Action');
 const { Channel } = require('../../structures/Channel');
+const { deletedChannels } = require('../../structures/Channel');
 const { ChannelTypes } = require('../../util/Constants');
 
 class ChannelUpdateAction extends Action {
@@ -32,7 +33,7 @@ class ChannelUpdateAction extends Action {
         old,
         updated: channel,
       };
-    } else {
+    } else if (!deletedChannels.has(data.id)) {
       client.channels._add(data);
     }
 

@@ -18,10 +18,10 @@ class ChannelDeleteAction extends Action {
 
     if (channel) {
       client.channels._remove(channel.id);
-      deletedChannels.add(channel);
+      deletedChannels.set(channel.id, Date.now());
       if (channel.messages && !(channel instanceof DMChannel)) {
         for (const message of channel.messages.cache.values()) {
-          deletedMessages.add(message);
+          deletedMessages.set(message.id, Date.now());
         }
       }
       /**

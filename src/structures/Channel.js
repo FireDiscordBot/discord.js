@@ -1,6 +1,5 @@
 'use strict';
 
-const process = require('node:process');
 const Base = require('./Base');
 const ChannelFlags = require('../util/ChannelFlags');
 const {
@@ -9,15 +8,18 @@ const {
   ThreadOnlyChannelTypes,
   VoiceBasedChannelTypes,
 } = require('../util/Constants');
+const LimitedCollection = require('../util/LimitedCollection');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
- * @type {WeakSet<Channel>}
+ * @type {Map<string, number>}
  * @private
  * @internal
  */
-const deletedChannels = new WeakSet();
-let deprecationEmittedForDeleted = false;
+const deletedChannels = new LimitedCollection({
+  sweepFilter: () => (_, deleted) => Date.now() - deleted >= 300_000,
+  sweepInterval: 60,
+});
 
 /**
  * Represents any channel on Discord.
@@ -78,31 +80,33 @@ class Channel extends Base {
   /**
    * Whether or not the structure has been deleted
    * @type {boolean}
-   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   * @readonly
    */
   get deleted() {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Channel#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
+    return deletedChannels.has(this.id);
+  }
 
-    return deletedChannels.has(this);
+  /**
+   * Approximately when the structure has been deleted
+   * @type {number?}
+   * @readonly
+   */
+  get deletedTimestamp() {
+    return deletedChannels.get(this.id);
+  }
+
+  /**
+   * Approximately when the structure has been deleted
+   * @type {Date}
+   * @readonly
+   */
+  get deletedAt() {
+    return this.deleted && new Date(deletedChannels.get(this.id));
   }
 
   set deleted(value) {
-    if (!deprecationEmittedForDeleted) {
-      deprecationEmittedForDeleted = true;
-      process.emitWarning(
-        'Channel#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
-        'DeprecationWarning',
-      );
-    }
-
-    if (value) deletedChannels.add(this);
-    else deletedChannels.delete(this);
+    if (value) deletedChannels.set(this.id, Date.now());
+    else deletedChannels.delete(this.id);
   }
 
   /**

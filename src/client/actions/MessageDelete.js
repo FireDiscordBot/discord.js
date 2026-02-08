@@ -15,7 +15,7 @@ class MessageDeleteAction extends Action {
       message = this.getMessage(data, channel);
       if (message) {
         channel.messages.cache.delete(message.id);
-        deletedMessages.add(message);
+        deletedMessages.set(message.id, Date.now());
         /**
          * Emitted whenever a message is deleted.
          * @event Client#messageDelete

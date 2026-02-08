@@ -1,8 +1,13 @@
 'use strict';
 
+const { deletedGuildMembers } = require('../../../structures/GuildMember');
 const { Events, Status } = require('../../../util/Constants');
 
 module.exports = (client, { d: data }, shard) => {
+  if (deletedGuildMembers.has(data.id)) {
+    deletedGuildMembers.delete(data.id);
+  }
+
   const guild = client.guilds.cache.get(data.guild_id);
   if (guild) {
     guild.memberCount++;

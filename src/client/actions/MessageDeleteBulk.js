@@ -15,6 +15,7 @@ class MessageDeleteBulkAction extends Action {
 
       const ids = data.ids;
       const messages = new Collection();
+      const deletedAt = Date.now();
       for (const id of ids) {
         const message = this.getMessage(
           {
@@ -25,7 +26,7 @@ class MessageDeleteBulkAction extends Action {
           false,
         );
         if (message) {
-          deletedMessages.add(message);
+          deletedMessages.set(message.id, deletedAt);
           messages.set(message.id, message);
           channel.messages.cache.delete(id);
         }

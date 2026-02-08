@@ -1,6 +1,7 @@
 'use strict';
 
 const Action = require('./Action');
+const { deletedStageInstances } = require('../../structures/StageInstance');
 const { Events } = require('../../util/Constants');
 
 class StageInstanceUpdateAction extends Action {
@@ -8,7 +9,7 @@ class StageInstanceUpdateAction extends Action {
     const client = this.client;
     const channel = this.getChannel(data);
 
-    if (channel) {
+    if (channel && !deletedStageInstances.has(data.id)) {
       const oldStageInstance = channel.guild.stageInstances.cache.get(data.id)?._clone() ?? null;
       const newStageInstance = channel.guild.stageInstances._add(data);
 
