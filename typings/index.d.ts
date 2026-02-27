@@ -66,6 +66,7 @@ import {
   APIThumbnailComponent,
   APIUser,
   APIUserSelectComponent,
+  ComponentType,
   GatewayVoiceServerUpdateDispatchData,
   GatewayVoiceStateUpdateDispatchData,
   Locale,
@@ -6949,7 +6950,7 @@ export type OverwriteResolvable = PermissionOverwrites | OverwriteData;
 
 export type OverwriteType = 'member' | 'role';
 
-export interface BaseModalData<Type extends MessageComponentType> {
+export interface BaseModalData<Type extends ComponentType> {
   customId: string;
   id: number;
   type: Type;
@@ -6960,13 +6961,19 @@ export interface PartialModalActionRow {
   components: TextInputModalData[];
 }
 
-export interface TextInputModalData extends BaseModalData<'TEXT_INPUT'> {
+export interface TextInputModalData extends BaseModalData<ComponentType.TextInput> {
   customId: string;
   value: string;
 }
 
 export interface SelectMenuModalData<Cached extends CacheType = CacheType>
-  extends BaseModalData<'CHANNEL_SELECT' | 'MENTIONABLE_SELECT' | 'ROLE_SELECT' | 'SELECT_MENU' | 'USER_SELECT'> {
+  extends BaseModalData<
+    | ComponentType.ChannelSelect
+    | ComponentType.MentionableSelect
+    | ComponentType.RoleSelect
+    | ComponentType.StringSelect
+    | ComponentType.UserSelect
+  > {
   customId: string;
   channels?: Collection<Snowflake, CacheTypeReducer<Cached, GuildBasedChannel, APIInteractionDataResolvedChannel>>;
   members?: Collection<Snowflake, CacheTypeReducer<Cached, GuildMember, APIInteractionDataResolvedGuildMember>>;
@@ -6975,24 +6982,24 @@ export interface SelectMenuModalData<Cached extends CacheType = CacheType>
   values: readonly string[];
 }
 
-export interface FileUploadModalData extends BaseModalData<'FILE_UPLOAD'> {
+export interface FileUploadModalData extends BaseModalData<ComponentType.FileUpload> {
   customId: string;
   attachments?: Collection<Snowflake, MessageAttachment>;
 }
 
-export interface RadioGroupModalData extends BaseModalData<'RADIO_GROUP'> {
+export interface RadioGroupModalData extends BaseModalData<ComponentType.RadioGroup> {
   customId: string;
   value: string | null;
 }
 
-export interface CheckboxGroupModalData extends BaseModalData<'CHECKBOX_GROUP'> {
+export interface CheckboxGroupModalData extends BaseModalData<ComponentType.CheckboxGroup> {
   customId: string;
   values: readonly string[];
 }
 
-export interface CheckboxModalData extends BaseModalData<'CHECKBOX'> {
+export interface CheckboxModalData extends BaseModalData<ComponentType.Checkbox> {
   customId: string;
-  value: string | null;
+  value: boolean | null;
 }
 
 export type ModalData =
@@ -7003,11 +7010,11 @@ export type ModalData =
   | CheckboxGroupModalData
   | CheckboxModalData;
 
-export interface ModalLabelData extends BaseModalData<'LABEL'> {
+export interface ModalLabelData extends BaseModalData<ComponentType.Label> {
   component: ModalData;
 }
 
-export interface PartialTextDisplayData extends BaseModalData<'TEXT_DISPLAY'> {}
+export interface PartialTextDisplayData extends BaseModalData<ComponentType.TextDisplay> {}
 
 export type PermissionFlags = Record<PermissionString, bigint>;
 
