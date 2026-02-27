@@ -7004,7 +7004,7 @@ export type ModalData =
   | CheckboxModalData;
 
 export interface ModalLabelData extends BaseModalData<'LABEL'> {
-  component: ModalData[];
+  component: ModalData;
 }
 
 export interface PartialTextDisplayData extends BaseModalData<'TEXT_DISPLAY'> {}
