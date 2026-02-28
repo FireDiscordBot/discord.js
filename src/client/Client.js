@@ -196,6 +196,33 @@ class Client extends BaseClient {
   }
 
   /**
+   * All of the entitlements for this application
+   * @type {?EntitlementManager}
+   * @readonly
+   */
+  get entitlements() {
+    return this.application?.entitlements ?? null;
+  }
+
+  /**
+   * All of the SKUs for this application
+   * @type {?SKUManager}
+   * @readonly
+   */
+  get skus() {
+    return this.application?.skus ?? null;
+  }
+
+  /**
+   * All of the subscriptions for this application
+   * @type {?SubscriptionManager}
+   * @readonly
+   */
+  get subscriptions() {
+    return this.application?.subscriptions ?? null;
+  }
+
+  /**
    * All custom emojis that the client has access to, mapped by their ids
    * @type {BaseGuildEmojiManager}
    * @readonly

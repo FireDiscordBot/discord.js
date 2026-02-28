@@ -177,6 +177,8 @@ const Messages = {
   SWEEP_FILTER_RETURN: 'The return value of the sweepFilter function was not false or a Function',
 
   GUILD_FORUM_MESSAGE_REQUIRED: 'You must provide a message to create a guild forum thread',
+
+  SUBSCRIPTION_FETCH_SKU_REQUIRED: 'You must provide a SKU when fetching subscriptions.',
 };
 
 for (const [name, message] of Object.entries(Messages)) register(name, message);

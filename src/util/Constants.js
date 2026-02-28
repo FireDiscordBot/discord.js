@@ -345,6 +345,12 @@ exports.Events = {
   GUILD_SCHEDULED_EVENT_USER_ADD: 'guildScheduledEventUserAdd',
   GUILD_SCHEDULED_EVENT_USER_REMOVE: 'guildScheduledEventUserRemove',
   GUILD_AUDIT_LOG_ENTRY_CREATE: 'guildAuditLogEntryCreate',
+  ENTITLEMENT_CREATE: 'entitlementCreate',
+  ENTITLEMENT_UPDATE: 'entitlementUpdate',
+  ENTITLEMENT_DELETE: 'entitlementDelete',
+  SUBSCRIPTION_CREATE: 'subscriptionCreate',
+  SUBSCRIPTION_UPDATE: 'subscriptionUpdate',
+  SUBSCRIPTION_DELETE: 'subscriptionDelete',
 };
 
 /**
@@ -508,6 +514,12 @@ exports.WSEvents = keyMirror([
   'GUILD_SCHEDULED_EVENT_USER_ADD',
   'GUILD_SCHEDULED_EVENT_USER_REMOVE',
   'GUILD_AUDIT_LOG_ENTRY_CREATE',
+  'ENTITLEMENT_CREATE',
+  'ENTITLEMENT_UPDATE',
+  'ENTITLEMENT_DELETE',
+  'SUBSCRIPTION_CREATE',
+  'SUBSCRIPTION_UPDATE',
+  'SUBSCRIPTION_DELETE',
 ]);
 
 /**
@@ -620,13 +632,16 @@ exports.MessageTypes = [
  * * `autoModerationRules`
  * * `bans`
  * * `emojis`
+ * * `entitlements`
  * * `invites` - accepts the `lifetime` property, using it will sweep based on expires timestamp
  * * `guildMembers`
  * * `messages` - accepts the `lifetime` property, using it will sweep based on edited or created timestamp
  * * `presences`
  * * `reactions`
+ * * `skus`
  * * `stageInstances`
  * * `stickers`
+ * * `subscriptions`
  * * `threadMembers`
  * * `threads` - accepts the `lifetime` property, using it will sweep archived threads based on archived timestamp
  * * `users`
@@ -638,13 +653,16 @@ exports.SweeperKeys = [
   'autoModerationRules',
   'bans',
   'emojis',
+  'entitlements',
   'invites',
   'guildMembers',
   'messages',
   'presences',
   'reactions',
+  'skus',
   'stageInstances',
   'stickers',
+  'subscriptions',
   'threadMembers',
   'threads',
   'users',
@@ -1595,6 +1613,24 @@ exports.SortOrderTypes = createEnum([null, 'LATEST_ACTIVITY', 'CREATION_DATE']);
  */
 exports.ForumLayoutTypes = createEnum(['NOT_SET', 'LIST_VIEW', 'GALLERY_VIEW']);
 
+exports.EntitlementTypes = createEnum([
+  null,
+  'PURCHASE',
+  'PREMIUM_SUBSCRIPTION',
+  'DEVELOPER_GIFT',
+  'TEST_MODE_PURCHASE',
+  'FREE_PURCHASE',
+  'USER_GIFT',
+  'PREMIUM_PURCHASE',
+  'APPLICATION_SUBSCRIPTION',
+]);
+
+exports.EntitlementOwnerTypes = createEnum([null, 'GUILD', 'USER']);
+
+exports.SKUTypes = createEnum([null, null, 'DURABLE', 'CONSUMABLE', null, 'SUBSCRIPTION', 'SUBSCRIPTION_GROUP']);
+
+exports.SubscriptionStatuses = createEnum(['ACTIVE', 'ENDING', 'INACTIVE']);
+
 exports._cleanupSymbol = Symbol('djsCleanup');
 
 function keyMirror(arr) {
@@ -1639,6 +1675,7 @@ function createEnum(keys) {
  * @property {Object<DefaultMessageNotificationLevel, number>} DefaultMessageNotificationLevels
  * The value set for a guilds default message notifications.
  * @property {Endpoints} Endpoints Object containing functions that return certain endpoints on the API.
+ * @property {Object<EntitlementType, number>} EntitlementTypes The type of an entitlement.
  * @property {Events} Events The types of events emitted by the Client.
  * @property {Object<ExplicitContentFilterLevel, number>} ExplicitContentFilterLevels
  * The value set for the explicit content filter levels for a guild.
@@ -1668,9 +1705,11 @@ function createEnum(keys) {
  * @property {Object<PremiumTier, number>} PremiumTiers The premium tier (Server Boost level) of a guild.
  * @property {Object<PrivacyLevel, number>} PrivacyLevels Privacy level of a {@link StageInstance} object.
  * @property {ShardEvents} ShardEvents The type of events emitted by a Shard.
+ * @property {Object<SKUType, number>} SKUTypes The type of a SKU.
  * @property {Status} Status The available statuses of the client.
  * @property {Object<StickerFormatType, number>} StickerFormatTypes The value set for a stickers format type.
  * @property {Object<StickerType, number>} StickerTypes The value set for a stickers type.
+ * @property {Object<SubscriptionStatus, number>} SubscriptionStatuses The status of a subscription.
  * @property {SweeperKey[]} SweeperKeys The name of an item to be swept in Sweepers.
  * @property {SystemMessageType[]} SystemMessageTypes The types of messages that are `System`.
  * @property {Object<TextInputStyle, number>} TextInputStyles The style of a text input component.

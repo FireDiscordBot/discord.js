@@ -95,6 +95,8 @@ import {
   AutoModerationRuleTriggerTypes,
   ChannelTypes,
   DefaultMessageNotificationLevels,
+  EntitlementOwnerTypes,
+  EntitlementTypes,
   ExplicitContentFilterLevels,
   ForumLayoutType,
   GuildScheduledEventEntityTypes,
@@ -114,9 +116,11 @@ import {
   PremiumTiers,
   PrivacyLevels,
   SeparatorComponentSpacing,
+  SKUTypes,
   SortOrderType,
   StickerFormatTypes,
   StickerTypes,
+  SubscriptionStatuses,
   TextInputStyles,
   VerificationLevels,
   VideoQualityModes,
@@ -648,8 +652,11 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
   public application: If<Ready, ClientApplication>;
   public channels: ChannelManager;
   public readonly emojis: BaseGuildEmojiManager;
+  public readonly entitlements: If<Ready, EntitlementManager>;
   public guilds: GuildManager;
   public options: ClientOptions;
+  public readonly skus: If<Ready, SKUManager>;
+  public readonly subscriptions: If<Ready, SubscriptionManager>;
   public readyAt: If<Ready, Date>;
   public readonly readyTimestamp: If<Ready, number>;
   public sweepers: Sweepers;
@@ -707,6 +714,9 @@ export class ClientApplication extends Application {
   public botPublic: boolean | null;
   public botRequireCodeGrant: boolean | null;
   public commands: ApplicationCommandManager;
+  public entitlements: EntitlementManager;
+  public skus: SKUManager;
+  public subscriptions: SubscriptionManager;
   public cover: string | null;
   public flags: Readonly<ApplicationFlags>;
   public guildId: Snowflake | null;
@@ -999,6 +1009,29 @@ export class Emoji extends Base {
   public toJSON(): unknown;
   public toString(): string;
 }
+
+export class Entitlement extends Base {
+  public constructor(client: Client, data: unknown);
+  public id: Snowflake;
+  public skuId: Snowflake;
+  public applicationId: Snowflake;
+  public userId: Snowflake | null;
+  public promotionId: Snowflake | null;
+  public type: EntitlementType;
+  public deleted: boolean;
+  public guildId: Snowflake | null;
+  public startsAt: Date | null;
+  public endsAt: Date | null;
+  public consumed: boolean;
+  public readonly guild: Guild | null;
+  public readonly user: User | null;
+  public fetch(options?: BaseFetchOptions): Promise<Entitlement>;
+  public consume(): Promise<void>;
+  public delete(): Promise<void>;
+  public isActive(): boolean;
+}
+
+export type EntitlementResolvable = Entitlement | Snowflake;
 
 export class Guild extends AnonymousGuild {
   public constructor(client: Client, data: RawGuildData);
@@ -1492,6 +1525,7 @@ export class Interaction<Cached extends CacheType = CacheType> extends Base {
   public memberPermissions: CacheTypeReducer<Cached, Readonly<Permissions>>;
   public locale: string;
   public guildLocale: CacheTypeReducer<Cached, string, string, string>;
+  public readonly entitlements: Collection<Snowflake, Entitlement>;
   public inGuild(): this is Interaction<'raw' | 'cached'>;
   public inCachedGuild(): this is Interaction<'cached'>;
   public inRawGuild(): this is Interaction<'raw'>;
@@ -2745,6 +2779,53 @@ export class RoleFlags extends BitField<RoleFlagsString> {
 
 export type RoleFlagsString = 'IN_PROMPT';
 
+export type EntitlementType = keyof typeof EntitlementTypes;
+export type EntitlementOwnerType = keyof typeof EntitlementOwnerTypes;
+export type SKUType = keyof typeof SKUTypes;
+export type SubscriptionStatus = keyof typeof SubscriptionStatuses;
+export type SKUFlagsString = 'AVAILABLE' | 'GUILD_SUBSCRIPTION' | 'USER_SUBSCRIPTION';
+
+export class SKU extends Base {
+  public constructor(client: Client, data: unknown);
+  public id: Snowflake;
+  public type: SKUType;
+  public applicationId: Snowflake;
+  public name: string;
+  public slug: string;
+  public flags: Readonly<SKUFlags>;
+  public readonly subscriptions: SubscriptionManager;
+  public readonly application: ClientApplication;
+  public fetch(options?: BaseFetchOptions): Promise<SKU>;
+}
+
+export type SKUResolvable = SKU | Snowflake;
+
+export class Subscription extends Base {
+  public constructor(client: Client, data: unknown);
+  public id: Snowflake;
+  public userId: Snowflake;
+  public skuIds: Snowflake[];
+  public entitlementIds: Snowflake[];
+  public currentPeriodStart: Date;
+  public currentPeriodEnd: Date;
+  public status: SubscriptionStatus;
+  public renewalSkuIds: Snowflake[] | null;
+  public canceledAt: Date | null;
+  public country: string | null;
+  public readonly user: User | null;
+  public readonly skus: Collection<Snowflake, SKU>;
+  public readonly entitlements: Collection<Snowflake, Entitlement>;
+  public readonly renewalSkus: Collection<Snowflake, SKU>;
+  public fetch(options?: BaseFetchOptions): Promise<Subscription>;
+}
+
+export type SubscriptionResolvable = Subscription | Snowflake;
+
+export class SKUFlags extends BitField<SKUFlagsString> {
+  public static FLAGS: Record<SKUFlagsString, number>;
+  public static resolve(bit?: BitFieldResolvable<SKUFlagsString, number>): number;
+}
+
 export class SelectMenuInteraction<
   Cached extends CacheType = CacheType,
   MenuType extends
@@ -3031,6 +3112,10 @@ export class Sweepers {
   public sweepReactions(
     filter: CollectionSweepFilter<SweeperDefinitions['reactions'][0], SweeperDefinitions['reactions'][1]>,
   ): number;
+  public sweepEntitlements(
+    filter: CollectionSweepFilter<SweeperDefinitions['entitlements'][0], SweeperDefinitions['entitlements'][1]>,
+  ): number;
+  public sweepSkus(filter: CollectionSweepFilter<SweeperDefinitions['skus'][0], SweeperDefinitions['skus'][1]>): number;
   public sweepStageInstances(
     filter: CollectionSweepFilter<SweeperDefinitions['stageInstances'][0], SweeperDefinitions['stageInstances'][1]>,
   ): number;
@@ -3042,6 +3127,9 @@ export class Sweepers {
   ): number;
   public sweepThreads(
     filter: CollectionSweepFilter<SweeperDefinitions['threads'][0], SweeperDefinitions['threads'][1]>,
+  ): number;
+  public sweepSubscriptions(
+    filter: CollectionSweepFilter<SweeperDefinitions['subscriptions'][0], SweeperDefinitions['subscriptions'][1]>,
   ): number;
   public sweepUsers(
     filter: CollectionSweepFilter<SweeperDefinitions['users'][0], SweeperDefinitions['users'][1]>,
@@ -3847,6 +3935,33 @@ export abstract class CachedManager<K, Holds, R> extends DataManager<K, Holds, R
   protected constructor(client: Client, holds: Constructable<Holds>, iterable?: Iterable<Holds>);
   private readonly _cache: Collection<K, Holds>;
   private _add(data: unknown, cache?: boolean, { id, extras }?: { id: K; extras: unknown[] }): Holds;
+}
+
+export class EntitlementManager extends CachedManager<Snowflake, Entitlement, EntitlementResolvable> {
+  public constructor(client: Client, iterable?: Iterable<unknown>);
+  public fetch(
+    options: EntitlementResolvable | (FetchEntitlementsOptions & { id: EntitlementResolvable }),
+  ): Promise<Entitlement>;
+  public fetch(options?: FetchEntitlementsOptions): Promise<Collection<Snowflake, Entitlement>>;
+  public createTestEntitlement(
+    skuId: Snowflake,
+    ownerId: Snowflake,
+    ownerType: EntitlementOwnerType | number,
+  ): Promise<Entitlement>;
+  public deleteTestEntitlement(entitlement: EntitlementResolvable): Promise<void>;
+  public consume(entitlement: EntitlementResolvable): Promise<void>;
+}
+
+export class SKUManager extends CachedManager<Snowflake, SKU, SKUResolvable> {
+  public constructor(client: Client, iterable?: Iterable<unknown>);
+  public fetch(options: SKUResolvable | (SKUFetchOptions & { id: SKUResolvable })): Promise<SKU>;
+  public fetch(options?: SKUFetchOptions): Promise<Collection<Snowflake, SKU>>;
+}
+
+export class SubscriptionManager extends CachedManager<Snowflake, Subscription, SubscriptionResolvable> {
+  public constructor(client: Client, iterable?: Iterable<unknown>);
+  public fetch(options: FetchSubscriptionOptions): Promise<Subscription>;
+  public fetch(options: FetchSubscriptionsOptions): Promise<Collection<Snowflake, Subscription>>;
 }
 
 export type ApplicationCommandDataResolvable =
@@ -5272,6 +5387,12 @@ export interface ClientEvents extends BaseClientEvents {
   /** @deprecated Use interactionCreate instead */
   interaction: [interaction: Interaction];
   interactionCreate: [interaction: Interaction];
+  entitlementCreate: [entitlement: Entitlement];
+  entitlementUpdate: [oldEntitlement: Entitlement | null, newEntitlement: Entitlement];
+  entitlementDelete: [entitlement: Entitlement];
+  subscriptionCreate: [subscription: Subscription];
+  subscriptionUpdate: [oldSubscription: Subscription | null, newSubscription: Subscription];
+  subscriptionDelete: [subscription: Subscription];
   shardDisconnect: [closeEvent: CloseEvent, shardId: number];
   shardError: [error: Error, shardId: number];
   shardReady: [shardId: number, unavailableGuilds: Set<Snowflake> | undefined];
@@ -5533,6 +5654,12 @@ export interface ConstantsEvents {
   TYPING_START: 'typingStart';
   WEBHOOKS_UPDATE: 'webhookUpdate';
   INTERACTION_CREATE: 'interactionCreate';
+  ENTITLEMENT_CREATE: 'entitlementCreate';
+  ENTITLEMENT_UPDATE: 'entitlementUpdate';
+  ENTITLEMENT_DELETE: 'entitlementDelete';
+  SUBSCRIPTION_CREATE: 'subscriptionCreate';
+  SUBSCRIPTION_UPDATE: 'subscriptionUpdate';
+  SUBSCRIPTION_DELETE: 'subscriptionDelete';
   ERROR: 'error';
   WARN: 'warn';
   DEBUG: 'debug';
@@ -5807,6 +5934,37 @@ export interface FetchMembersOptions {
   time?: number;
   nonce?: string;
   force?: boolean;
+}
+
+export interface FetchEntitlementsOptions {
+  userId?: Snowflake;
+  skuIds?: Snowflake[];
+  before?: Snowflake;
+  after?: Snowflake;
+  limit?: number;
+  guildId?: Snowflake;
+  excludeEnded?: boolean;
+  excludeDeleted?: boolean;
+}
+
+export interface SubscriptionFetchOptions extends BaseFetchOptions {
+  sku?: SKUResolvable;
+}
+
+export interface FetchSubscriptionOptions extends BaseFetchOptions {
+  sku: SKUResolvable;
+  id: SubscriptionResolvable;
+}
+
+export interface FetchSubscriptionsOptions extends BaseFetchOptions {
+  sku: SKUResolvable;
+  before?: Snowflake;
+  after?: Snowflake;
+  limit?: number;
+}
+
+export interface SKUFetchOptions extends BaseFetchOptions {
+  id?: SKUResolvable;
 }
 
 export interface FetchReactionUsersOptions {
@@ -7365,6 +7523,9 @@ export interface SweeperDefinitions {
   stickers: [Snowflake, Sticker];
   threadMembers: [Snowflake, ThreadMember];
   threads: [Snowflake, ThreadChannel, true];
+  entitlements: [Snowflake, Entitlement];
+  skus: [Snowflake, SKU];
+  subscriptions: [Snowflake, Subscription];
   users: [Snowflake, User];
   voiceStates: [Snowflake, VoiceState];
 }

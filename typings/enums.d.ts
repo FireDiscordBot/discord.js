@@ -288,3 +288,32 @@ export enum ApplicationRoleConnectionMetadataTypes {
   BOOLEAN_EQUAL,
   BOOLEAN_NOT_EQUAL,
 }
+
+export const enum EntitlementTypes {
+  PURCHASE = 1,
+  PREMIUM_SUBSCRIPTION = 2,
+  DEVELOPER_GIFT = 3,
+  TEST_MODE_PURCHASE = 4,
+  FREE_PURCHASE = 5,
+  USER_GIFT = 6,
+  PREMIUM_PURCHASE = 7,
+  APPLICATION_SUBSCRIPTION = 8,
+}
+
+export const enum EntitlementOwnerTypes {
+  GUILD = 1,
+  USER = 2,
+}
+
+export const enum SKUTypes {
+  DURABLE = 2,
+  CONSUMABLE = 3,
+  SUBSCRIPTION = 5,
+  SUBSCRIPTION_GROUP = 6,
+}
+
+export const enum SubscriptionStatuses {
+  ACTIVE = 0,
+  ENDING = 1,
+  INACTIVE = 2,
+}

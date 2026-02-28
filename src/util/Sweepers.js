@@ -78,6 +78,39 @@ class Sweepers {
   }
 
   /**
+   * Sweeps all entitlements and removes the ones which are indicated by the filter.
+   * @param {Function} filter The function used to determine which entitlements will be removed from the caches
+   * @returns {number} Amount of entitlements that were removed from the caches
+   */
+  sweepEntitlements(filter) {
+    const items = this.client.application?.entitlements.cache.sweep(filter) ?? 0;
+    this.client.emit(Events.CACHE_SWEEP, `Swept ${items} entitlements.`);
+    return items;
+  }
+
+  /**
+   * Sweeps all SKUs and removes the ones which are indicated by the filter.
+   * @param {Function} filter The function used to determine which SKUs will be removed from the caches
+   * @returns {number} Amount of SKUs that were removed from the caches
+   */
+  sweepSkus(filter) {
+    const items = this.client.application?.skus.cache.sweep(filter) ?? 0;
+    this.client.emit(Events.CACHE_SWEEP, `Swept ${items} SKUs.`);
+    return items;
+  }
+
+  /**
+   * Sweeps all subscriptions and removes the ones which are indicated by the filter.
+   * @param {Function} filter The function used to determine which subscriptions will be removed from the caches
+   * @returns {number} Amount of subscriptions that were removed from the caches
+   */
+  sweepSubscriptions(filter) {
+    const items = this.client.application?.subscriptions.cache.sweep(filter) ?? 0;
+    this.client.emit(Events.CACHE_SWEEP, `Swept ${items} subscriptions.`);
+    return items;
+  }
+
+  /**
    * Sweeps all auto moderation rules and removes the ones which are indicated by the filter.
    * @param {Function} filter The function used to determine
    * which auto moderation rules will be removed from the caches

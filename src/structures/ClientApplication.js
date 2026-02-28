@@ -4,6 +4,9 @@ const { ApplicationRoleConnectionMetadata } = require('./ApplicationRoleConnecti
 const Team = require('./Team');
 const Application = require('./interfaces/Application');
 const ApplicationCommandManager = require('../managers/ApplicationCommandManager');
+const EntitlementManager = require('../managers/EntitlementManager');
+const SKUManager = require('../managers/SKUManager');
+const SubscriptionManager = require('../managers/SubscriptionManager');
 const ApplicationFlags = require('../util/ApplicationFlags');
 const { ApplicationRoleConnectionMetadataTypes } = require('../util/Constants');
 const Permissions = require('../util/Permissions');
@@ -27,6 +30,24 @@ class ClientApplication extends Application {
      * @type {ApplicationCommandManager}
      */
     this.commands = new ApplicationCommandManager(this.client);
+
+    /**
+     * The entitlement manager for this application
+     * @type {EntitlementManager}
+     */
+    this.entitlements = new EntitlementManager(this.client);
+
+    /**
+     * The SKU manager for this application
+     * @type {SKUManager}
+     */
+    this.skus = new SKUManager(this.client);
+
+    /**
+     * The subscription manager for this application
+     * @type {SubscriptionManager}
+     */
+    this.subscriptions = new SubscriptionManager(this.client);
   }
 
   _patch(data) {

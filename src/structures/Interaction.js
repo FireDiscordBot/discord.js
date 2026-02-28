@@ -2,6 +2,7 @@
 
 const { Collection } = require('@discordjs/collection');
 const Base = require('./Base');
+const Entitlement = require('./Entitlement');
 const MessageAttachment = require('./MessageAttachment');
 const { InteractionTypes, MessageComponentTypes, ApplicationCommandTypes } = require('../util/Constants');
 const Permissions = require('../util/Permissions');
@@ -130,6 +131,19 @@ class Interaction extends Base {
      * @type {?Locale}
      */
     this.guildLocale = data.guild_locale ?? null;
+
+    /**
+     * The entitlements for the invoking user and guild
+     * @type {Collection<Snowflake, Entitlement>}
+     */
+    this.entitlements = new Collection();
+    if (data.entitlements) {
+      for (const entitlement of data.entitlements) {
+        const structure =
+          this.client.application?.entitlements._add(entitlement) ?? new Entitlement(this.client, entitlement);
+        this.entitlements.set(entitlement.id, structure);
+      }
+    }
   }
 
   /**
