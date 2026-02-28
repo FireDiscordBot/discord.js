@@ -3,7 +3,6 @@
 const { Collection } = require('@discordjs/collection');
 const Base = require('./Base');
 const BaseMessageComponent = require('./BaseMessageComponent');
-const ClientApplication = require('./ClientApplication');
 const InteractionCollector = require('./InteractionCollector');
 const MessageAttachment = require('./MessageAttachment');
 const Embed = require('./MessageEmbed');
@@ -12,6 +11,7 @@ const MessagePayload = require('./MessagePayload');
 const { Poll } = require('./Poll');
 const ReactionCollector = require('./ReactionCollector');
 const { Sticker } = require('./Sticker');
+const Application = require('./interfaces/Application');
 const { Error } = require('../errors');
 const ReactionManager = require('../managers/ReactionManager');
 const {
@@ -263,11 +263,11 @@ class Message extends Base {
     if ('application' in data) {
       /**
        * Supplemental application information for group activities
-       * @type {?ClientApplication}
+       * @type {?Application}
        */
-      this.groupActivityApplication = new ClientApplication(this.client, data.application);
+      this.application = new Application(this.client, data.application);
     } else {
-      this.groupActivityApplication ??= null;
+      this.application ??= null;
     }
 
     if ('application_id' in data) {
@@ -275,7 +275,7 @@ class Message extends Base {
        * The id of the application of the interaction that sent this message, if any
        * @type {?Snowflake}
        */
-      this.applicationId = data.application_id;
+      this.applicationId = this.application?.id ?? data.application_id;
     } else {
       this.applicationId ??= null;
     }
@@ -1081,7 +1081,7 @@ class Message extends Base {
     return super.toJSON({
       channel: 'channelId',
       author: 'authorId',
-      groupActivityApplication: 'groupActivityApplicationId',
+      application: 'applicationId',
       guild: 'guildId',
       cleanContent: true,
       member: false,
