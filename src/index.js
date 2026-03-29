@@ -92,6 +92,7 @@ exports.BaseGuildTextChannel = require('./structures/BaseGuildTextChannel');
 exports.BaseGuildVoiceChannel = require('./structures/BaseGuildVoiceChannel');
 exports.BaseMessageComponent = require('./structures/BaseMessageComponent');
 exports.BaseMessageComponentV2 = require('./structures/BaseMessageComponentV2');
+exports.BaseSelectMenu = require('./structures/BaseSelectMenu');
 exports.ButtonInteraction = require('./structures/ButtonInteraction');
 exports.CategoryChannel = require('./structures/CategoryChannel');
 exports.Channel = require('./structures/Channel').Channel;
