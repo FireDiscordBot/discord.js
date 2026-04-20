@@ -177,6 +177,7 @@ export interface RawMessageAttachmentData {
   id: Snowflake;
   filename: string;
   description?: string;
+  placeholder?: string;
   content_type?: string;
   size: number;
   url: string;

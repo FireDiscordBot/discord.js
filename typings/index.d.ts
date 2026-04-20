@@ -1911,6 +1911,8 @@ export class MessageAttachment {
   public attachment: BufferResolvable | Stream;
   public contentType: string | null;
   public description: string | null;
+  public placeholder: string | null;
+  public placeholderVersion: number | null;
   public duration: number | null;
   public ephemeral: boolean;
   public flags: Readonly<AttachmentFlags>;

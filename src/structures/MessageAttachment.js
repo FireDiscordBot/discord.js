@@ -165,6 +165,26 @@ class MessageAttachment {
       this.description ??= null;
     }
 
+    if ('placeholder' in data) {
+      /**
+       * The placeholder (thumbhash) for this attachment
+       * @type {?string}
+       */
+      this.placeholder = data.placeholder;
+    } else {
+      this.placeholder ??= null;
+    }
+
+    if ('placeholder_version' in data) {
+      /**
+       * Version of the placeholder (thumbhash) for this attachment
+       * @type {?number}
+       */
+      this.placeholderVersion = data.placeholder_version;
+    } else {
+      this.placeholderVersion ??= null;
+    }
+
     /**
      * Whether this attachment is ephemeral
      * @type {boolean}
