@@ -1662,7 +1662,7 @@ exports.EntitlementOwnerTypes = createEnum([null, 'GUILD', 'USER']);
 
 exports.SKUTypes = createEnum([null, null, 'DURABLE', 'CONSUMABLE', null, 'SUBSCRIPTION', 'SUBSCRIPTION_GROUP']);
 
-exports.SubscriptionStatuses = createEnum(['ACTIVE', 'ENDING', 'INACTIVE']);
+exports.SubscriptionStatuses = createEnum(['ACTIVE', 'INACTIVE', 'ENDING']);
 
 exports._cleanupSymbol = Symbol('djsCleanup');
 
