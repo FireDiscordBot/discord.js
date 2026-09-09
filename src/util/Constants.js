@@ -746,6 +746,8 @@ exports.ActivityTypes = createEnum(['PLAYING', 'STREAMING', 'LISTENING', 'WATCHI
  * * `GUILD_STAGE_VOICE` - a guild stage voice channel
  * * `GUILD_DIRECTORY` - the channel in a hub containing guilds
  * * `GUILD_FORUM` - a channel that can only contain threads
+ * * `GUILD_MEDIA` - a media channel that can only contain threads
+ * * `GUILD_APP_CHANNEL` - a guild text channel with an application tied to it
  * * `UNKNOWN` - a generic channel of unknown type, could be Channel or GuildChannel
  * @typedef {string} ChannelType
  * @see {@link https://discord.com/developers/docs/resources/channel#channel-object-channel-types}
@@ -767,6 +769,9 @@ exports.ChannelTypes = createEnum([
   'GUILD_DIRECTORY',
   'GUILD_FORUM',
   'GUILD_MEDIA',
+  ...Array(4).fill(null),
+  // 21
+  'GUILD_APP_CHANNEL',
 ]);
 
 /**
@@ -777,7 +782,8 @@ exports.ChannelTypes = createEnum([
  * * ThreadChannel
  * * VoiceChannel
  * * StageChannel
- * @typedef {DMChannel|TextChannel|NewsChannel|ThreadChannel|VoiceChannel|StageChannel} TextBasedChannels
+ * * AppChannel
+ * @typedef {DMChannel|TextChannel|NewsChannel|ThreadChannel|VoiceChannel|StageChannel|AppChannel} TextBasedChannels
  */
 
 /**
@@ -797,6 +803,7 @@ exports.ChannelTypes = createEnum([
  * * GUILD_PRIVATE_THREAD
  * * GUILD_VOICE
  * * GUILD_STAGE_VOICE
+ * * GUILD_APP_CHANNEL
  * @typedef {string} TextBasedChannelTypes
  */
 exports.TextBasedChannelTypes = [
@@ -808,6 +815,7 @@ exports.TextBasedChannelTypes = [
   'GUILD_PRIVATE_THREAD',
   'GUILD_VOICE',
   'GUILD_STAGE_VOICE',
+  'GUILD_APP_CHANNEL',
 ];
 
 /**

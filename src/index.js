@@ -95,6 +95,7 @@ exports.BaseMessageComponentV2 = require('./structures/BaseMessageComponentV2');
 exports.BaseSelectMenu = require('./structures/BaseSelectMenu');
 exports.ButtonInteraction = require('./structures/ButtonInteraction');
 exports.CategoryChannel = require('./structures/CategoryChannel');
+exports.AppChannel = require('./structures/AppChannel');
 exports.Channel = require('./structures/Channel').Channel;
 exports.ClientApplication = require('./structures/ClientApplication');
 exports.ClientPresence = require('./structures/ClientPresence');

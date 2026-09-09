@@ -585,6 +585,7 @@ export type MappedChannelCategoryTypes = EnumValueMapped<
     GUILD_STAGE_VOICE: StageChannel;
     GUILD_FORUM: ForumChannel;
     GUILD_MEDIA: MediaChannel;
+    GUILD_APP_CHANNEL: AppChannel;
   }
 >;
 
@@ -3189,6 +3190,12 @@ export class TextChannel extends BaseGuildTextChannel {
   public rateLimitPerUser: number;
   public threads: GuildTextThreadManager<AllowedThreadTypeForTextChannel>;
   public type: 'GUILD_TEXT';
+}
+
+export class AppChannel extends BaseGuildTextChannel {
+  public applicationId: string;
+  public rateLimitPerUser: number;
+  public type: 'GUILD_APP_CHANNEL';
 }
 
 export interface GuildForumTagEmoji {
@@ -5826,6 +5833,7 @@ interface Extendable {
   GuildEmoji: typeof GuildEmoji;
   DMChannel: typeof DMChannel;
   TextChannel: typeof TextChannel;
+  AppChannel: typeof AppChannel;
   VoiceChannel: typeof VoiceChannel;
   CategoryChannel: typeof CategoryChannel;
   NewsChannel: typeof NewsChannel;
@@ -7553,6 +7561,7 @@ export interface LimitedSetOptions<V> {
 }
 
 export type AnyChannel =
+  | AppChannel
   | CategoryChannel
   | DMChannel
   | PartialDMChannel

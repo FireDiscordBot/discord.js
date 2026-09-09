@@ -262,6 +262,11 @@ class Channel extends Base {
             channel = new MediaChannel(guild, data, client);
             break;
           }
+          case ChannelTypes.GUILD_APP_CHANNEL: {
+            const AppChannel = Structures.get('AppChannel');
+            channel = new AppChannel(guild, data, client);
+            break;
+          }
         }
         if (channel && !allowUnknownGuild) guild.channels?.cache.set(channel.id, channel);
       }

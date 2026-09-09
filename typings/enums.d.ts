@@ -74,6 +74,7 @@ export const enum ChannelTypes {
   GUILD_DIRECTORY = 14,
   GUILD_FORUM = 15,
   GUILD_MEDIA = 16,
+  GUILD_APP_CHANNEL = 21,
 }
 
 export const enum SortOrderType {
